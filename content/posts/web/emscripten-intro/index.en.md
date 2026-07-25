@@ -1,5 +1,5 @@
 ---
-title: "Emscripten Intro"
+title: "Emscripten Introduction"
 date: "2026-07-25T16:14:39+09:00"
 draft: false
 description: ""
