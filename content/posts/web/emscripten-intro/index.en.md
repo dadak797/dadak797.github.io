@@ -14,6 +14,7 @@ tags:
 
 ShowToc: true
 TocOpen: false
+ShowReadingTime: false
 ---
 
 > [!SUMMARY]
