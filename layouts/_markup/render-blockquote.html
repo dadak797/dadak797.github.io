@@ -1,0 +1,22 @@
+{{- if eq .Type "alert" -}} {{- $icons := dict "note" "ℹ️" "tip" "💡"
+"important" "❗" "warning" "⚠️" "caution" "🛑" -}} {{- $titles := dict "note"
+"Note" "tip" "Tip" "important" "Important" "warning" "Warning" "caution"
+"Caution" -}} {{- if eq .Page.Language.Lang "ko" -}} {{- $titles = dict "note"
+"참고" "tip" "팁" "important" "중요" "warning" "경고" "caution" "주의" -}} {{-
+end -}} {{- $title := index $titles .AlertType -}}
+
+<aside class="markdown-alert markdown-alert-{{ .AlertType }}">
+  <p class="markdown-alert-title">
+    <span class="markdown-alert-icon" aria-hidden="true">
+      {{- index $icons .AlertType -}}
+    </span>
+
+    {{- with .AlertTitle -}} {{ . }} {{- else -}} {{ $title | default
+    (.AlertType | title) }} {{- end -}}
+  </p>
+
+  <div class="markdown-alert-content">{{ .Text }}</div>
+</aside>
+{{- else -}}
+<blockquote>{{ .Text }}</blockquote>
+{{- end -}}
