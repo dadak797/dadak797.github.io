@@ -34,7 +34,7 @@ TocOpen: false
 ![Emscripten_Toolchain_Flow](images/emscripten_toolchain_flow_en_v2.svg)
 _그림 1. Emscripten은 C/C++를 `.wasm` 바이너리와 `.js` glue로 컴파일하며, 이 glue가 WebAssembly와 DOM·Web API를 이어준다._
 
-## 좋은 점
+## 장점
 
 1. 빠름
    - WebAssembly는 미리 컴파일된 바이너리 포맷이라, JavaScript처럼 실행 중에 파싱·최적화하는 단계 없이 곧바로 실행됨
@@ -49,7 +49,7 @@ _그림 1. Emscripten은 C/C++를 `.wasm` 바이너리와 `.js` glue로 컴파�
 4. 서버의 부하를 분산
    - 서버에서 처리하던 무거운 작업도 브라우저에서 처리할 수 있음 (PC에서 처리 가능한 범위 내에서)
 
-## 안 좋은 점
+## 단점
 
 1. 사용자 파일 접근
    - 브라우저 환경 안에서 동작하기 때문에 사용자의 파일에 직접 접근할 수 없음. HTML input 태그의 file 속성으로 파일을 불러온 뒤 WebAssembly 메모리로 복사하는 과정이 필요하여 native 환경에 비해 로딩이 번거롭고 느림
