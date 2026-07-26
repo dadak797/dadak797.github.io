@@ -1,6 +1,7 @@
 ---
 title: "Emscripten 소개"
 date: "2026-07-25T16:14:39+09:00"
+lastmod: "2026-07-26T23:28:39+09:00"
 draft: false
 description: "Emscripten이 C/C++ 코드를 WebAssembly로 변환하는 방식과 주요 장단점을 살펴보고, 브라우저 환경에 적합한 활용 사례를 정리합니다."
 

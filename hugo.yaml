@@ -20,6 +20,8 @@ languages:
           Emscripten, WebAssembly, WebGPU, OpenCASCADE, VTK를 중심으로 구현 과정과 시행착오를 기록합니다.
 
           **C++** · **Graphics** · **Web** · **Simulation** · **Misc**
+      footer:
+        text: "[개인정보처리방침](/dev-blog/privacy/)"
     menus:
       main:
         - identifier: posts
@@ -58,6 +60,8 @@ languages:
           Notes on Emscripten, WebAssembly, WebGPU, OpenCASCADE, and VTK.
 
           **C++** · **Graphics** · **Web** · **Simulation** · **Misc**
+      footer:
+        text: "[Privacy Policy](/dev-blog/en/privacy/)"
     menus:
       main:
         - identifier: posts
@@ -129,6 +133,7 @@ params:
 
   ShowReadingTime: true
   ShowWordCount: true
+  ShowLastMod: true
   ShowPostNavLinks: true
   ShowBreadCrumbs: true
   ShowCodeCopyButtons: true

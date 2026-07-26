@@ -1,0 +1,29 @@
+{{- $scratch := newScratch }}
+{{- $dateFormat := default ":date_long" site.Params.DateFormat }}
+
+{{- if not .Date.IsZero -}}
+    {{- $scratch.Add "meta" (slice (printf "<span title='%s'>%s</span>" (.Date) (.Date | time.Format $dateFormat))) }}
+{{- end }}
+
+{{- if and (.Param "ShowLastMod") (not .Lastmod.IsZero) (ne .Lastmod.Unix .Date.Unix) -}}
+    {{- $lastmodLabel := cond (eq .Language.Lang "ko") "수정" "Updated" -}}
+    {{- $scratch.Add "meta" (slice (printf "<span title='%s'>%s %s</span>" (.Lastmod) $lastmodLabel (.Lastmod | time.Format $dateFormat))) }}
+{{- end }}
+
+{{- if (.Param "ShowReadingTime") -}}
+    {{- $scratch.Add "meta" (slice (printf "<span>%s</span>" (i18n "read_time" .ReadingTime | default (printf "%d min" .ReadingTime)))) }}
+{{- end }}
+
+{{- if (.Param "ShowWordCount") -}}
+    {{- $scratch.Add "meta" (slice (printf "<span>%s</span>" (i18n "words" .WordCount | default (printf "%d words" .WordCount)))) }}
+{{- end }}
+
+{{- if not (.Param "hideAuthor") -}}
+    {{- with (partial "author.html" .) }}
+        {{- $scratch.Add "meta" (slice (printf "<span>%s</span>" .)) }}
+    {{- end }}
+{{- end }}
+
+{{- with ($scratch.Get "meta") }}
+    {{- delimit . "&nbsp;·&nbsp;" | safeHTML -}}
+{{- end -}}
