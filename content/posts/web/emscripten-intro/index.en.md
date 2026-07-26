@@ -2,7 +2,7 @@
 title: "Emscripten Introduction"
 date: "2026-07-25T16:14:39+09:00"
 draft: false
-description: ""
+description: "An introduction to how Emscripten compiles C/C++ to WebAssembly, including its key advantages, limitations, and suitable use cases for browser-based applications."
 
 categories:
   - Web
@@ -40,6 +40,7 @@ _Figure 1. Emscripten compiles C/C++ into a `.wasm` binary plus `.js` glue; the 
 1. Fast
    - WebAssembly is a pre-compiled binary format, so it runs directly without the parse-and-optimize step JavaScript goes through at runtime
    - That said, the benefit depends on the workload — heavy computations see a big gap, while lightweight tasks may gain little due to boundary-call overhead
+   - [Same C++ Code: Native vs WebAssembly Performance]()
 2. Reusability
    - Lets you reuse the vast body of existing C++ code
    - You can also pull in an entire pre-built Wasm module. Pyodide is CPython built with Emscripten — using it, you can run Python in the browser
@@ -80,6 +81,28 @@ _Figure 1. Emscripten compiles C/C++ into a `.wasm` binary plus `.js` glue; the 
 
 > [!NOTE]
 > Whether these products use Emscripten/Wasm can change over time, so verify against each company's engineering material before citing them.
+
+## FAQ
+
+- Can I build any C++ code to Wasm without modifying it at all?
+  - Just as C++ code written on Windows can't be used on Linux without some changes, building for Wasm also requires a few modifications.
+  - Common cases that won't build without changes:
+    - Using a library that hasn't been ported to Emscripten
+    - Using OS/browser-dependent features such as file access, threads, or networking
+- Is graphics programming possible?
+  - Yes, it is. Based on the OpenGL ES subset (not full desktop OpenGL), C++ code written to that spec is internally converted to WebGL when compiled to Wasm, and can be rendered in the browser via an HTML canvas element. (Roughly, OpenGL ES 2.0 ↔ WebGL 1 and OpenGL ES 3.0 ↔ WebGL 2.)
+  - C++ code written to the WebGPU spec can likewise be compiled to Wasm and rendered via a canvas element. Note that WebGPU is still being rolled out, so it's worth checking support in your target browsers.
+- Is memory usage unlimited?
+  - No. For CPU memory, the default memory model (wasm32) caps the address space at 4 GB. If you need more, you can opt into the 64-bit memory model (wasm64, Memory64) to go beyond the 4 GB limit, but the actual ceiling is bounded by policy limits set by the browser/engine.
+  - GPU memory is mediated by the browser through WebGL/WebGPU, so you can't use the graphics card's full capacity directly; it's available within the limits the browser places on the context and the share it has alongside other applications.
+- How do I debug?
+  - If you build with source map (DWARF) information, you can set breakpoints and debug at the original C++ source level in the browser's developer tools.
+- Is the build output large? Can I make it smaller?
+  - You can reduce the size using optimization flags (`-Os`, `-Oz`), link-time optimization, and gzip/brotli compression.
+- Can I use my existing CMake/Make projects as-is?
+  - You can wrap your existing build scripts with `emcmake` and `emmake` to build them with the Emscripten toolchain.
+- How do I get started?
+  - [Emscripten Installation]()
 
 ## References
 
