@@ -73,7 +73,7 @@ _그림 1. Emscripten은 C/C++를 `.wasm` 바이너리와 `.js` glue로 컴파�
 - 대규모·고성능 연산이나 저지연 실시간 처리가 필요한 웹 앱
   - 예) Figma, Photoshop Web
 - 기존 대형 C/C++ 앱을 웹으로 이식하고 싶을 때 - 예) AutoCAD Web, Google Earth
-  ![네이티브와 웹에서 실행 중인 C++ 3D 뷰어](images/NativeToWeb.png)
+  ![네이티브와 웹에서 실행 중인 C++ 3D 뷰어](images/NativeToWeb.webp)
   _그림 2. 네이티브(왼쪽)로 작성한 C++ 3D 뷰어를 Emscripten으로 컴파일해 웹 브라우저(오른쪽)에서 동일하게 실행한 모습. 같은 코드가 두 환경에서 그대로 동작한다._
 - 여러 플랫폼에서 동일한 핵심 로직을 공유하고 싶을 때 (C++ 코어 하나로 네이티브 앱 + 웹)
 - 성숙한 C/C++ 라이브러리를 재작성 없이 웹에 그대로 가져오고 싶을 때

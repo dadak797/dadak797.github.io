@@ -73,7 +73,7 @@ _Figure 1. Emscripten compiles C/C++ into a `.wasm` binary plus `.js` glue; the 
 - Web apps that need large-scale, high-performance computation or low-latency real-time processing
   - e.g. Figma, Photoshop Web
 - When you want to port an existing large C/C++ application to the web - e.g. AutoCAD Web, Google Earth
-  ![A C++ 3D viewer running natively and in the web browser](images/NativeToWeb.png)
+  ![A C++ 3D viewer running natively and in the web browser](images/NativeToWeb.webp)
   _Figure 2. A C++ 3D viewer written natively (left), compiled with Emscripten and running identically in a web browser (right). The same code works unchanged in both environments._
 - When you want to share the same core logic across multiple platforms (one C++ core for both a native app and the web)
 - When you want to bring a mature C/C++ library to the web without rewriting it
