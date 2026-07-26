@@ -12,11 +12,6 @@ tags:
   - webassembly
   - javascript
 
-cover:
-  image: "images/emscripten_logo.svg"
-  alt: "Emscripten Logo"
-  hiddenInSingle: true
-
 ShowToc: true
 TocOpen: true
 ShowReadingTime: false
