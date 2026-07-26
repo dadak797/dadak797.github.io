@@ -1,0 +1,5 @@
+/* Emscripten 소개 글의 cover 이미지만 조절 */
+.entry-cover img[src*="emscripten_logo.svg"] {
+  width: min(100%, 180px);
+  margin-inline: auto;
+}
