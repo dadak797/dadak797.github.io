@@ -1,4 +1,4 @@
-baseURL: "https://dadak797.github.io/dev-blog/"
+baseURL: "https://dadak797.github.io/"
 defaultContentLanguage: "ko"
 defaultContentLanguageInSubdir: false
 title: "dadak's Dev Notes"
@@ -21,7 +21,7 @@ languages:
 
           **C++** · **Graphics** · **Web** · **Simulation** · **Misc**
       footer:
-        text: "[개인정보처리방침](/dev-blog/privacy/)"
+        text: "[개인정보처리방침](/privacy/)"
     menus:
       main:
         - identifier: posts
@@ -61,7 +61,7 @@ languages:
 
           **C++** · **Graphics** · **Web** · **Simulation** · **Misc**
       footer:
-        text: "[Privacy Policy](/dev-blog/en/privacy/)"
+        text: "[Privacy Policy](/en/privacy/)"
     menus:
       main:
         - identifier: posts
