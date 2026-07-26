@@ -115,6 +115,13 @@ params:
   description: "개발하면서 배운 내용을 기록하는 공간입니다."
   author: "dadak797"
 
+  assets:
+    favicon: "images/favicon.svg"
+    favicon16x16: "images/favicon-16.svg"
+    favicon32x32: "images/favicon-32.svg"
+    apple_touch_icon: "images/apple-touch-icon.png"
+    safari_pinned_tab: "images/favicon.svg"
+
   defaultTheme: auto
   disableThemeToggle: false
   disableLangToggle: false
