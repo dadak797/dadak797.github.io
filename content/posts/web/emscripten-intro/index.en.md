@@ -13,7 +13,7 @@ tags:
   - javascript
 
 ShowToc: true
-TocOpen: false
+TocOpen: true
 ShowReadingTime: false
 ---
 
@@ -32,7 +32,7 @@ ShowReadingTime: false
 - At runtime a Wasm module can't touch the DOM directly, but through the glue code (.js) it can reach the browser's DOM and Web APIs
 - The glue code also lets you use a Wasm module's functionality from within Node.js
 
-![Emscripten|525](images/emscripten_toolchain_flow_en_v2.svg)
+![Emscripten|525](images/emscripten_toolchain_flow.svg)
 _Figure 1. Emscripten compiles C/C++ into a `.wasm` binary plus `.js` glue; the glue bridges WebAssembly to the DOM and Web APIs._
 
 ## Advantages
@@ -93,7 +93,7 @@ _Figure 1. Emscripten compiles C/C++ into a `.wasm` binary plus `.js` glue; the 
   - Yes, it is. Based on the OpenGL ES subset (not full desktop OpenGL), C++ code written to that spec is internally converted to WebGL when compiled to Wasm, and can be rendered in the browser via an HTML canvas element. (Roughly, OpenGL ES 2.0 ↔ WebGL 1 and OpenGL ES 3.0 ↔ WebGL 2.)
   - C++ code written to the WebGPU spec can likewise be compiled to Wasm and rendered via a canvas element. Note that WebGPU is still being rolled out, so it's worth checking support in your target browsers.
 - Is memory usage unlimited?
-  - No. For CPU memory, the default memory model (wasm32) caps the address space at 4 GB. If you need more, you can opt into the 64-bit memory model (wasm64, Memory64) to go beyond the 4 GB limit, but the actual ceiling is bounded by policy limits set by the browser/engine.
+  - No. For CPU memory, the default memory model (wasm32) caps the address space at 4 GB. However, recent browsers (Chrome 133, Firefox 134, Node.js 24.0 and later) support the Memory64 model, letting you go beyond the 4 GB limit. That said, for the security and stability of the browser environment, the maximum Memory64 allocation on the web is generally capped at 16 GB. (https://webassembly.org/news/2025-09-17-wasm-3.0/)
   - GPU memory is mediated by the browser through WebGL/WebGPU, so you can't use the graphics card's full capacity directly; it's available within the limits the browser places on the context and the share it has alongside other applications.
 - How do I debug?
   - If you build with source map (DWARF) information, you can set breakpoints and debug at the original C++ source level in the browser's developer tools.

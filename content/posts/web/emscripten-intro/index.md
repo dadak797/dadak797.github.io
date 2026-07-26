@@ -13,7 +13,7 @@ tags:
   - javascript
 
 ShowToc: true
-TocOpen: false
+TocOpen: true
 ShowReadingTime: false
 ---
 
@@ -29,10 +29,10 @@ ShowReadingTime: false
 ## Emscripten
 
 - Emscripten은 C/C++로 작성된 코드를 WebAssembly 바이너리(.wasm)와 JavaScript 접착 코드(.js)로 변환해주는 컴파일러
-- 런타임에 Wasm 모듈은 DOM을 직접 접근할 수 없지만, 접착 코드(.js)를 이용하여 웹 브라우저의 DOM과 Web API에 접근할 수 있음
+- 런타임에 Wasm 모듈은 DOM에 직접 접근할 수 없지만, 접착 코드(.js)를 이용하여 웹 브라우저의 DOM과 Web API에 접근할 수 있음
 - Node.js 환경에서도 접착 코드를 이용하여 Wasm 모듈의 기능을 활용할 수 있음
 
-![Emscripten_Toolchain_Flow](images/emscripten_toolchain_flow_en_v2.svg)
+![Emscripten_Toolchain_Flow](images/emscripten_toolchain_flow.svg)
 _그림 1. Emscripten은 C/C++를 `.wasm` 바이너리와 `.js` glue로 컴파일하며, 이 glue가 WebAssembly와 DOM·Web API를 이어준다._
 
 ## 장점
@@ -93,7 +93,7 @@ _그림 1. Emscripten은 C/C++를 `.wasm` 바이너리와 `.js` glue로 컴파�
   - 네. 가능합니다. 데스크톱 OpenGL 전체가 아니라 OpenGL ES 서브셋 기준으로, 이 스펙에 맞게 코딩된 C++ 코드는 Wasm으로 컴파일 시 내부적으로 WebGL로 변환되어 HTML canvas 태그를 이용해 브라우저에서 렌더링할 수 있습니다. (대략 OpenGL ES 2.0 ↔ WebGL 1, OpenGL ES 3.0 ↔ WebGL 2로 대응됩니다.)
   - WebGPU 스펙에 맞게 C++로 코딩된 코드도 Wasm으로 컴파일하여 canvas 태그로 렌더링할 수 있습니다. 다만 WebGPU는 아직 확산 단계이므로 대상 브라우저의 지원 상황을 확인하는 것이 좋습니다.
 - 메모리는 제한 없이 사용할 수 있나요?
-  - 아니요. CPU 메모리는 기본 메모리 모델(wasm32)에서 주소 공간이 4GB로 제한됩니다. 더 큰 메모리가 필요하면 64비트 메모리 모델(wasm64, Memory64)을 옵트인해 4GB 한계를 넘을 수 있지만, 실제 상한은 브라우저·엔진이 정한 정책적 한계 내로 제한됩니다.
+  - 아니요. CPU 메모리는 기본 메모리 모델(wasm32)에서 주소 공간이 4GB로 제한됩니다. 하지만, 최신 브라우저에서는 (Chrome - 133, Firefox - 134, Node.js - 24.0)부터는 Memory64 모델이 지원되어 4GB 한계를 넘을 수 있습니다. 다만, 브라우저 환경의 보안 및 안정성을 위해 웹 내에서의 Memory64 최대 할당 크기는 일반적으로 16GB로 제한됩니다. (https://webassembly.org/news/2025-09-17-wasm-3.0/)
   - GPU 메모리는 WebGL/WebGPU를 통해 브라우저가 중개하므로, 그래픽 카드의 전체 용량을 그대로 쓸 수 있는 것은 아니며 브라우저가 컨텍스트에 거는 제한과 다른 앱과의 공유 범위 안에서 사용할 수 있습니다.
 - 디버깅은 어떻게 하나요?
   - 소스맵(DWARF) 정보를 함께 빌드하면, 브라우저 개발자 도구에서 원본 C++ 소스 레벨로 중단점을 걸고 디버깅할 수 있습니다.
