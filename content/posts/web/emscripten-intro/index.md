@@ -103,7 +103,7 @@ _그림 1. Emscripten은 C/C++를 `.wasm` 바이너리와 `.js` glue로 컴파�
 - 기존 CMake/Make 프로젝트를 그대로 쓸 수 있나요?
   - `emcmake`, `emmake`로 기존 빌드 스크립트를 감싸서 Emscripten 툴체인으로 빌드할 수 있습니다.
 - 어떻게 시작하나요?
-  - [Emscripten 설치](/posts/emscripten-install/)
+  - [Emscripten 설치 및 예제](/posts/emscripten-install/)
 
 ## 참고 자료
 

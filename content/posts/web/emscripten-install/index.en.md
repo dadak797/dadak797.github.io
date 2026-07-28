@@ -1,5 +1,5 @@
 ---
-title: "Emscripten Install and Examples"
+title: "Emscripten Installation and Examples"
 date: "2026-07-28T20:45:02+09:00"
 lastmod: "2026-07-28T20:45:02+09:00"
 draft: false
