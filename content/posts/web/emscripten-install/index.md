@@ -1,7 +1,7 @@
 ---
 title: "Emscripten 설치 및 예제"
 date: "2026-07-28T20:44:36+09:00"
-lastmod: "2026-07-28T20:44:36+09:00"
+lastmod: "2026-07-29T08:25:55+09:00"
 draft: false
 description: "Windows·macOS·Linux에서 Emscripten을 설치하고, C++ 코드를 WebAssembly로 빌드해 Node.js와 브라우저에서 실행하는 방법을 정리합니다."
 
@@ -358,6 +358,23 @@ _그림 2. 브라우저에서 두 번째 예제의 wasm 코드를 실행한 모�
 
 - https://github.com/dadak797/blog-examples/tree/master/examples/ex-2
 - emsdk 5.0.3
+
+## FAQ
+
+- 여러 OS에서 같은 소스로 빌드하면 결과물이 같나요?
+  - 네. `.wasm`, `.js`, `.html` 모두 플랫폼과 무관하게 동일합니다.
+- 미리 빌드된 라이브러리를 내 코드와 함께 WebAssembly로 빌드하려면 무엇을 맞춰야 하나요?
+  - **빌드 대상**: 라이브러리도 Emscripten으로 빌드된 것이어야 합니다. Native용 바이너리는 링크되지 않습니다.
+  - **Emscripten 버전**: 라이브러리와 내 코드의 버전을 맞추세요. 다르면 빌드 실패나 런타임 오류가 날 수 있습니다.
+  - **컴파일 옵션**: `-pthread`(멀티스레딩), `-sMEMORY64=1`(메모리 모델)처럼 ABI에 영향을 주는 옵션은 양쪽이 같아야 합니다. 다르면 빌드가 실패합니다.
+- 브라우저에서 `index.html`을 더블클릭해서 바로 열면 왜 안 되나요?
+  - `file://`로 열면 브라우저 보안 정책 때문에 `.wasm`을 불러오지 못합니다. 그래서 `python -m http.server`로 로컬 서버를 띄운 뒤 `localhost`로 접속하는 것입니다.
+- `emsdk` 명령을 찾을 수 없다고 나와요 (`command not found`)
+  - 새 터미널에서는 환경 변수가 초기화됩니다. 매번 `emsdk_env`(Windows) 또는 `source ./emsdk_env.sh`(macOS/Linux)를 실행하거나, PATH에 영구적으로 등록하세요. macOS·Linux에서는 `emsdk`가 PATH에 없을 때 `./emsdk`처럼 앞에 `./`를 붙여야 합니다.
+- `.js`만 있으면 되지, `.wasm`은 왜 따로 생기나요?
+  - 실제 컴파일된 코드는 `.wasm`에 들어 있고, `.js`는 그 `.wasm`을 로드·초기화하고 JS와 이어주는 접착(glue) 코드입니다. 브라우저/Node.js 모두 `.js`를 통해 `.wasm`을 실행하므로 두 파일이 같은 위치에 있어야 합니다.
+- `node main.js`는 되는데, 왜 브라우저에서는 서버가 필요한가요?
+  - Node.js는 파일 시스템에서 `.wasm`을 직접 읽을 수 있지만, 브라우저는 `file://`에서 `.wasm`을 가져오지 못합니다. 그래서 브라우저 실행에만 로컬 서버가 필요합니다.
 
 ## 참고 자료
 
