@@ -14,7 +14,7 @@ tags:
   - javascript
 
 ShowToc: true
-TocOpen: true
+TocOpen: false
 ShowReadingTime: false
 ---
 
@@ -103,7 +103,7 @@ _Figure 1. Emscripten compiles C/C++ into a `.wasm` binary plus `.js` glue; the 
 - Can I use my existing CMake/Make projects as-is?
   - You can wrap your existing build scripts with `emcmake` and `emmake` to build them with the Emscripten toolchain.
 - How do I get started?
-  - [Emscripten Installation]()
+  - [Emscripten Installation](/en/posts/emscripten-install/)
 
 ## References
 
