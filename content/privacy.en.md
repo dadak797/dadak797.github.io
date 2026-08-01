@@ -2,7 +2,7 @@
 title: "Privacy Policy"
 description: "Information about how dadak's Dev Notes handles personal information and cookies."
 date: "2026-07-27T00:00:00+09:00"
-lastmod: "2026-07-27T00:00:00+09:00"
+lastmod: "2026-08-01T00:00:00+09:00"
 draft: false
 ShowToc: true
 ShowReadingTime: false
@@ -11,13 +11,13 @@ ShowWordCount: false
 
 dadak's Dev Notes ("this site") respects the privacy of its visitors. This policy explains how personal information and cookies may be handled when you visit this site.
 
-This policy is effective as of July 27, 2026.
+This policy is effective as of July 27, 2026, and was last updated on August 1, 2026.
 
 ## Information That May Be Collected
 
 This site does not provide user registration, comments, or contact forms and does not directly collect visitors' names or contact details.
 
-However, third-party services such as Google AdSense may automatically process information including:
+However, third-party services such as Google AdSense and Google Analytics may automatically process information including:
 
 - IP address and approximate location
 - Browser and device information
@@ -35,12 +35,19 @@ For more information, see [How Google uses information from sites or apps that u
 
 Visitors can manage or opt out of personalized advertising through [Google Ads Settings](https://adssettings.google.com/). Cookies can also be deleted or blocked through browser settings.
 
+## Google Analytics
+
+This site uses Google Analytics 4 (GA4) to analyze visitor statistics and improve its content and usability. Google may use cookies and similar technologies to process information such as pages visited, session and site usage information, approximate location, and browser and device information. The site operator does not send Google Analytics information that directly identifies visitors, such as their names or contact details.
+
+For more information about how Google processes this information, see [How Google uses information from sites or apps that use its services](https://policies.google.com/technologies/partner-sites?hl=en). Visitors can limit Google Analytics data collection by blocking cookies in their browser or installing the [Google Analytics Opt-out Browser Add-on](https://tools.google.com/dlpage/gaoptout?hl=en).
+
 ## Third-Party Services
 
 This site may use the following third-party services:
 
 - GitHub Pages: website hosting
 - Google AdSense: advertising and advertising performance measurement
+- Google Analytics: visitor statistics and site improvement
 
 Information processed by these services is subject to their respective privacy policies:
 
@@ -57,6 +64,7 @@ Visitors can manage the use of cookies and advertising data by:
 
 - Deleting or blocking cookies in their browser
 - Turning off personalized advertising in Google Ads Settings
+- Using the Google Analytics Opt-out Browser Add-on
 - Changing or withdrawing consent through any consent management message displayed on the site
 
 Blocking cookies may prevent some features or advertisements from working as intended.
