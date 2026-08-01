@@ -88,6 +88,10 @@ languages:
 enableRobotsTXT: true
 enableGitInfo: true
 
+services:
+  googleAnalytics:
+    id: "G-ER8QVWDR2L"
+
 taxonomies:
   category: categories
   tag: tags
