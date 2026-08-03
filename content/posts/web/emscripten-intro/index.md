@@ -41,7 +41,7 @@ _그림 1. Emscripten은 C/C++를 `.wasm` 바이너리와 `.js` glue로 컴파�
 1. 빠름
    - WebAssembly는 미리 컴파일된 바이너리 포맷이라, JavaScript처럼 실행 중에 파싱·최적화하는 단계 없이 곧바로 실행됨
    - 다만 성능 이점은 문제 유형에 따라 달라서, 무거운 연산에서는 큰 차이가 나지만 가벼운 작업에서는 경계 호출 비용 때문에 이점이 작을 수 있음
-   - [같은 C++ 코드, Native vs WebAssembly 성능 비교]()
+   - [같은 연산, 다른 실행 환경: JavaScript·WebAssembly·네이티브 C++ 성능 비교](/posts/performance-js-wasm-native/)
 2. 재활용성
    - 기존에 작성된 방대한 C++ 기반의 코드 재활용 가능
    - 빌드된 Wasm 모듈을 통째로 가져와서 사용할 수도 있음. Pyodide는 CPython을 Emscripten으로 빌드한 모듈로, 이 모듈을 이용하면 브라우저에서 Python을 돌릴 수 있음

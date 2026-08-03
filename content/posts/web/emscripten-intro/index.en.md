@@ -41,7 +41,7 @@ _Figure 1. Emscripten compiles C/C++ into a `.wasm` binary plus `.js` glue; the 
 1. Fast
    - WebAssembly is a pre-compiled binary format, so it runs directly without the parse-and-optimize step JavaScript goes through at runtime
    - That said, the benefit depends on the workload — heavy computations see a big gap, while lightweight tasks may gain little due to boundary-call overhead
-   - [Same C++ Code: Native vs WebAssembly Performance]()
+   - [Same Computation, Different Runtimes: JavaScript, WebAssembly, and Native C++ Performance](/en/posts/performance-js-wasm-native/)
 2. Reusability
    - Lets you reuse the vast body of existing C++ code
    - You can also pull in an entire pre-built Wasm module. Pyodide is CPython built with Emscripten — using it, you can run Python in the browser
