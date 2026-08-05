@@ -12,6 +12,7 @@ tags:
   - emscripten
   - webassembly
   - javascript
+  - cpp
 
 ShowToc: true
 TocOpen: false
