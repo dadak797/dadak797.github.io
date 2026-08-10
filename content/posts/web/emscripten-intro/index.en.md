@@ -63,6 +63,7 @@ _Figure 1. Emscripten compiles C/C++ into a `.wasm` binary plus `.js` glue; the 
    - The Wasm module (.wasm) and the glue code (.js) that connects it to JS both have to be downloaded, so the first load can be heavy
 4. JS <span>&harr;</span> Wasm boundary-call overhead
    - Crossing the boundary frequently, or passing strings and large data, can incur significant conversion and memory-copy (marshaling) costs
+   - For what actually happens when strings are passed back and forth, see [Calling C++ Functions from JavaScript - ccall, cwrap](/en/posts/call-cpp-from-js/)
 5. Multithreading
    - Multithreading requires SharedArrayBuffer, which in turn forces you to set COOP/COEP headers
    - The setup itself is simple, but COEP is a page-wide policy, so cross-origin resources such as external CDNs and third-party widgets must all comply. The burden is small for self-hosted apps, but sites with many external dependencies need to check for compatibility

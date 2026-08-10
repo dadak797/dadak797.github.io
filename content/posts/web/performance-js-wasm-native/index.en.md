@@ -487,7 +487,7 @@ g++-15 -O3 -std=c++17 main.cpp prime_number.cpp -o native_prime_gcc
 
 - Does this mean there is no performance difference between Wasm and native code?
   - This example needs to pass only one integer argument to invoke the Wasm function, so there is very little interaction across the `JavaScript glue code` ↔ `Wasm` boundary. This structure allows Wasm to perform close to its best case.
-  - In other workloads, frequent interaction across the `user code` ↔ `JavaScript glue code` ↔ `Wasm` boundary adds call overhead. Passing large values such as strings or arrays can also require copying data into Wasm linear memory and copying results back out, which may prevent Wasm from reaching native performance.
+  - In other workloads, frequent interaction across the `user code` ↔ `JavaScript glue code` ↔ `Wasm` boundary adds call overhead. Passing large values such as strings or arrays can also require copying data into Wasm linear memory and copying results back out, which may prevent Wasm from reaching native performance. See [Calling C++ Functions from JavaScript - ccall, cwrap](/en/posts/call-cpp-from-js/) for a detailed walkthrough of this process.
   - Wasm code should therefore be designed to minimize interaction with JavaScript glue code when performance matters.
 - Why is JavaScript only about 1.5 times slower?
   - JavaScript is often expected to be several times slower, but this example consists of type-stable integer arithmetic and simple loops. V8's JIT compiler can optimize this into machine code that performs relatively close to native code. The warm-up runs give the JIT time to apply these optimizations.
