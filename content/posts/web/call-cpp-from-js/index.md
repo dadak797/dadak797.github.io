@@ -1,7 +1,7 @@
 ---
 title: "JavaScript에서 C++ 함수 호출 하기 - ccall, cwrap"
 date: "2026-08-09T23:48:06+09:00"
-draft: true
+draft: false
 description: "JavaScript에서 C++의 함수를 호출하는 방법에 대해 소개한다. 문자열 인자를 손쉽게 넘기기 위한 헬퍼 함수 ccall, cwrap의 활용 방법도 소개한다."
 
 categories:
