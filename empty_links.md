@@ -1,15 +1,5 @@
 # Empty links to be written
 
-## content/posts/web/call-cpp-from-js/index.md
-
-- Line 200: `[JavaScript에서 C++ 클래스 사용하기]()`
-- Line 225: `[JavaScript에서 C++ 클래스 사용하기]()`
-
-## content/posts/web/call-cpp-from-js/index.en.md
-
-- Line 200: `[Using C++ Classes from JavaScript]()`
-- Line 225: `[Using C++ Classes from JavaScript]()`
-
 ## content/posts/web/call-js-from-cpp/index.md
 
 - Line 210: `[WebAssembly에서 File 다루기]()`

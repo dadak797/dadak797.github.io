@@ -197,7 +197,7 @@ em++ hello_c_api.cpp -o index.html --shell-file template.html -s EXPORTED_FUNCTI
 ## FAQ
 
 - Is there a way to use C++ classes from JavaScript?
-  - Using Embind ([Using C++ Classes from JavaScript]()) or the WebIDL Binder, you can export a C++ class and create instances of it from JavaScript.
+  - Using Embind ([Using C++ Classes from JavaScript](/en/posts/embind/)) or the WebIDL Binder, you can export a C++ class and create instances of it from JavaScript.
 - Which should I use, `ccall` or `cwrap`?
   - For a function you'll call repeatedly, it's better to wrap it once with `cwrap`; for a one-off call, `ccall` is more convenient.
 - I get an error like "ccall is not defined".
@@ -222,7 +222,7 @@ console.log(helloStr);  // prints "Hello from C++!"
 
 - Can a function that returns a struct or class be called with `ccall`?
   - `ccall`/`cwrap` return types only support `number`, `string`, `boolean`, and `array`, so they can't represent a struct or class made up of multiple fields. Worse, a function that returns a struct by value gets compiled into an entirely different form at the C/Wasm level — one that receives the result through a hidden pointer argument — so calling it with no arguments can even crash.
-  - Embind handles this kind of marshaling for you automatically. See [Using C++ Classes from JavaScript]().
+  - Embind handles this kind of marshaling for you automatically. See [Using C++ Classes from JavaScript](/en/posts/embind/).
 
 ## References
 
