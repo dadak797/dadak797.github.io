@@ -309,3 +309,7 @@ rect.delete();
   - If a function returns a class instance by value, or takes one as an argument, an extra temporary copy gets created along the way. It's easy to call `delete()` on the instance you actually need while missing this temporary copy
   - It's also easy to miss a `delete()` call along a code path where an exception causes the function to exit early. This is a problem that RAII naturally solves in C++, but that guarantee doesn't carry over to a JS object handed over through Embind, so you need to explicitly guarantee the `delete()` call with `try`/`finally`
   - Conversely, if you keep the same instance in multiple variables and call `delete()` through only one of them, calling a method through any of the other variables throws a "using deleted object"-style error. This is actually Embind's safeguard for catching use of an already-freed object — so if you hit this error, treat it as a sign that some reference somewhere already had `delete()` called on it
+
+## References
+
+- [Emscripten - Embind](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html)

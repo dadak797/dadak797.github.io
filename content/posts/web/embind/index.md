@@ -309,3 +309,7 @@ rect.delete();
   - 함수가 클래스 인스턴스를 값(by-value)으로 리턴하거나 인자로 받으면, 그 과정에서 임시 복사본이 추가로 생성됨. 필요한 인스턴스만 `delete()`하고 이 임시 복사본은 놓치기 쉬움
   - 예외가 발생해서 함수가 중간에 빠져나가는 경로에는 `delete()` 호출이 누락되기 쉬움. C++에서 RAII로 자연스럽게 해결되는 문제가 Embind로 넘어온 JS 객체에는 적용되지 않으므로, `try`/`finally`로 명시적으로 `delete()`를 보장해야 함
   - 반대로, 같은 인스턴스를 여러 변수에 담아두고 그중 하나만 `delete()`하면 나머지 변수로 메서드를 호출할 때 "using deleted object" 계열의 에러가 발생함. 이는 실제로 이미 해제된 객체를 안전하게 걸러주는 Embind의 보호 장치이므로, 에러가 난다면 어딘가에서 이미 `delete()`가 호출된 참조를 들고 있다는 신호로 보면 됨
+
+## 참고 자료
+
+- [Emscripten - Embind](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html)
