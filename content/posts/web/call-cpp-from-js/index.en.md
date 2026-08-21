@@ -94,7 +94,7 @@ _Figure 1. Calling the `hello` function, written in C++, from the browser._
 - To call a function exported via `EMSCRIPTEN_KEEPALIVE`, you need to prefix the function name with an underscore (`_`).
 
 > [!CAUTION]
-> Calling an exported function before the Wasm module has finished initializing can cause an error. You should either use the `Module.onRuntimeInitialized` callback or wait until initialization completes before calling the function. See the related explanation in [Emscripten Installation and Examples - Example 2](/en/posts/emscripten-install/#example-2) for more details.
+> Calling an exported function before the Wasm module has finished initializing can cause an error. You should either use the `Module.onRuntimeInitialized` callback or wait until initialization completes before calling the function. See the related explanation in [Emscripten Installation and Examples - Example 2](/en/posts/emscripten-install/#example-2) for more details. The `Module` object itself is covered in detail in [Emscripten Module](/en/posts/emscripten-module/).
 
 > [!NOTE]
 > Usually either `EMSCRIPTEN_KEEPALIVE` or `EXPORTED_FUNCTIONS` alone is enough to call a function from JS. The difference is that `EMSCRIPTEN_KEEPALIVE` marks the export inside the source code, while `EXPORTED_FUNCTIONS` specifies it in the build settings.

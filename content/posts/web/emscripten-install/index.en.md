@@ -353,7 +353,7 @@ python -m http.server 8080
 _Figure 2. Running the second example's wasm code in the browser._
 
 > [!CAUTION]
-> When the Wasm output is large, it takes time for the Module to initialize, so calling an exported function immediately can cause an error. You should either define `Module.onRuntimeInitialized` as a callback so the function is called after initialization finishes, or wait long enough for initialization to complete before calling the function. This example is short, so running it sequentially in the interactive console causes no problems. In Example 1, the `main` function runs automatically once the Wasm module is initialized, so there was no need to worry about timing.
+> When the Wasm output is large, it takes time for the Module to initialize, so calling an exported function immediately can cause an error. You should either define `Module.onRuntimeInitialized` as a callback so the function is called after initialization finishes, or wait long enough for initialization to complete before calling the function. This example is short, so running it sequentially in the interactive console causes no problems. In Example 1, the `main` function runs automatically once the Wasm module is initialized, so there was no need to worry about timing. The `Module` object itself is covered in detail in [Emscripten Module](/en/posts/emscripten-module/).
 
 ### Example Code and emsdk Version
 

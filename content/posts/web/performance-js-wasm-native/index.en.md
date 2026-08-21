@@ -124,6 +124,7 @@ em++ prime_number.cpp -O3 -o wasm_prime_number.js \
   - Generates an asynchronous factory function instead of a global `Module` object
   - Calling the factory function returns a Promise that resolves to an initialized `Module` instance
   - This option makes it possible to exclude Wasm module loading time from the benchmark
+  - For a detailed look at `MODULARIZE`, `EXPORT_NAME`, and Module creation options in general, see [Emscripten Module](/en/posts/emscripten-module/)
 - `EXPORT_NAME`
   - Specifies the name of the module factory function
   - A module instance can be created with `const module = await createPrimeModule();`

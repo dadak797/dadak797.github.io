@@ -94,7 +94,7 @@ _그림 1. C++로 작성된 hello 함수를 브라우저에서 호출한 모습_
 - `EMSCRIPTEN_KEEPALIVE`를 통해 내보내진 함수를 호출하기 위해서는 함수명 앞에 underscore(`_`)를 붙여야 함
 
 > [!CAUTION]
-> Wasm 모듈 초기화가 끝나기 전에 내보낸 함수를 호출하면 오류가 발생할 수 있다. `Module.onRuntimeInitialized` 콜백을 이용하거나 초기화가 완료될 때까지 기다린 후에 호출해야 한다. 자세한 내용은 [Emscripten 설치 및 예제 - 예제 돌려보기 - 2](/posts/emscripten-install/#예제-돌려보기---2)의 관련 설명을 참고.
+> Wasm 모듈 초기화가 끝나기 전에 내보낸 함수를 호출하면 오류가 발생할 수 있다. `Module.onRuntimeInitialized` 콜백을 이용하거나 초기화가 완료될 때까지 기다린 후에 호출해야 한다. 자세한 내용은 [Emscripten 설치 및 예제 - 예제 돌려보기 - 2](/posts/emscripten-install/#예제-돌려보기---2)의 관련 설명을 참고. `Module` 객체 자체에 대한 자세한 설명은 [Emscripten Module](/posts/emscripten-module/)에서 다룬다.
 
 > [!NOTE]
 > 보통 `EMSCRIPTEN_KEEPALIVE` 또는 `EXPORTED_FUNCTIONS` 둘 중에 하나만 이용해도 JS에서 호출할 수 있다. `EMSCRIPTEN_KEEPALIVE` 소스 코드 내부에서, `EXPORTED_FUNCTIONS는` 빌드 설정에서 export를 지정한다는 차이가 있다.

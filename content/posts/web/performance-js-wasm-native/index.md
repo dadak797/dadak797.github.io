@@ -124,6 +124,7 @@ em++ prime_number.cpp -O3 -o wasm_prime_number.js \
   - 전역 Module 객체 대신 비동기 팩토리 함수가 생성됨
   - 이 팩토리 함수를 호출하면 초기화된 Module 인스턴스로 resolve 되는 Promise가 반환됨
   - Wasm 모듈의 로딩 시간을 테스트 시간에서 제외하기 위해 사용하는 옵션
+  - `MODULARIZE`, `EXPORT_NAME`을 포함한 Module 생성 옵션 전반에 대한 자세한 설명은 [Emscripten Module](/posts/emscripten-module/#module의-생성-옵션) 참고
 - `EXPORT_NAME`
   - 모듈 팩토리 함수의 이름
   - `const module = await createPrimeModule();`과 같은 형태로 module의 인스턴스를 생성할 수 있음
