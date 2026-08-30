@@ -3,7 +3,7 @@ title: "Introduction to Emscripten"
 date: "2026-07-25T16:14:39+09:00"
 lastmod: "2026-07-26T23:37:50+09:00"
 draft: false
-description: "An introduction to how Emscripten compiles C/C++ to WebAssembly, including its key advantages, limitations, and suitable use cases for browser-based applications."
+description: "Emscripten is a compiler that turns C/C++ code into WebAssembly (.wasm), letting you build high-performance applications that run in the browser."
 
 categories:
   - Web

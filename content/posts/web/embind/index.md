@@ -2,7 +2,7 @@
 title: JavaScript에서 C++ 클래스 사용하기 - Embind
 date: 2026-08-19
 draft: false
-description: C++의 클래스를 JavaScript에서 사용하도록 하기 위한 Embind에 대해 소개한다.
+description: "C++의 클래스를 JavaScript에서 사용하도록 하기 위한 Embind에 대해 소개한다. Embind를 이용하여 C++의 클래스 뿐만 아니라 함수, 변수, enum class를 바인딩하여 JavaScript에서 사용하는 예제도 함께 소개한다."
 categories:
   - Web
 tags:

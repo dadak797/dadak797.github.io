@@ -2,7 +2,7 @@
 title: "C++에서 JavaScript의 함수를 호출하기 - EM_ASM, EM_JS"
 date: "2026-08-15T16:06:30+09:00"
 draft: false
-description: "C++에서 JavaScript의 함수를 호출하는 방법에 대해 소개한다. 이를 위해 Emscripten에서 제공하는 매크로 함수인 EM_ASM과 EM_JS의 활용 방법을 소개한다."
+description: "C++에서 DOM에 접근하고 JavaScript의 함수를 호출하는 방법에 대해 소개한다. 첫 번째 예제에서는 C++에서 EM_ASM을 이용하여 JavaScript 함수를 호출하고 C++ 인자를 JavaScript로 전달하는 방법을 보여준다. 두 번째 예제는 C++에서 EM_JS와 EM_ASM을 이용하여 웹 브라우저에서 마우스의 위치를 출력하는 예제를 보여 준다."
 categories:
   - Web
 tags:

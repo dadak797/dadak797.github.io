@@ -3,7 +3,7 @@ title: "Emscripten 설치 및 예제"
 date: "2026-07-28T20:44:36+09:00"
 lastmod: "2026-07-29T08:25:55+09:00"
 draft: false
-description: "Windows·macOS·Linux에서 Emscripten을 설치하고, C++ 코드를 WebAssembly로 빌드해 Node.js와 브라우저에서 실행하는 방법을 정리합니다."
+description: "Emscripten을 각 플랫폼에서 설치하는 방법을 알려주고, C++로 작성한 코드를 WebAssembly로 빌드하여 Node.js와 브라우저 환경에서 예제를 실행시킨다."
 
 categories:
   - Web

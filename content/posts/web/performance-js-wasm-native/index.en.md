@@ -2,7 +2,7 @@
 title: "Same Computation, Different Runtimes: JavaScript, WebAssembly, and Native C++ Performance"
 date: "2026-08-02T16:27:08+09:00"
 draft: false
-description: "A performance comparison of the same logic implemented in pure JavaScript, C++ compiled to WebAssembly, and natively compiled C++."
+description: "This article compares the execution time of the same logic implemented in JavaScript and C++, using pure JavaScript, C++ compiled to WebAssembly, and native C++. In the prime-counting example, WebAssembly took 1.002 times as long as native C++ compiled with GCC, while pure JavaScript took 1.523 times as long."
 
 categories:
   - Web

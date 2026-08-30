@@ -2,7 +2,7 @@
 title: "Calling JavaScript Functions from C++ - EM_ASM, EM_JS"
 date: "2026-08-15T16:06:30+09:00"
 draft: false
-description: "An introduction to calling JavaScript functions from C++. This covers how to use EM_ASM and EM_JS, macros provided by Emscripten, to do so."
+description: "An introduction to accessing the DOM and calling JavaScript functions from C++. The first example uses EM_ASM in C++ to call a JavaScript function and pass a C++ argument to JavaScript. The second example uses EM_JS and EM_ASM in C++ to print the mouse position in the web browser."
 categories:
   - Web
 tags:

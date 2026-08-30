@@ -2,7 +2,7 @@
 title: "Using C++ Classes from JavaScript - Embind"
 date: 2026-08-19
 draft: false
-description: "An introduction to Embind for using C++ classes from JavaScript."
+description: "An introduction to Embind for using C++ classes from JavaScript. Also covers binding not only C++ classes but also functions, variables, and enum classes with Embind, and using them from JavaScript."
 categories:
   - Web
 tags:

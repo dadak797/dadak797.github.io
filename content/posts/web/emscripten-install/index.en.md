@@ -3,7 +3,7 @@ title: "Emscripten Installation and Examples"
 date: "2026-07-28T20:45:02+09:00"
 lastmod: "2026-07-29T08:25:55+09:00"
 draft: false
-description: "How to install Emscripten on Windows, macOS, and Linux, then build C++ into WebAssembly and run it in both Node.js and the browser."
+description: "This guide covers how to install Emscripten on each platform, then builds C++ code into WebAssembly and runs examples in both Node.js and the browser."
 
 categories:
   - Web

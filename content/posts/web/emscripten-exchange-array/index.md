@@ -2,7 +2,7 @@
 title: JavaScript와 C++로 배열 주고 받기 - JSON, Standard Library, Memory View
 date: 2026-08-30
 draft: false
-description: JavaScript에서 사용하기 위해 C++ 함수를 내보낼 때, 인자로 배열을 넘기는 방법에 대해 소개한다. JSON 문자열을 이용한 방법, Standard Library를 이용하는 방법, Memory View를 이용하는 방법에 대해 설명한다.
+description: "JavaScript에서 사용하기 위해 C++ 함수를 내보낼 때, 인자로 배열을 넘기는 방법에 대해 소개한다. 첫 번째로 JSON 문자열을 이용하여 데이터를 전달하고 파싱하여 사용하는 방법, 두 번째 Standard Library를 Embind로 바인딩하여 사용하는 방법, 세 번째로 Memory View를 이용하여 Wasm 메모리에 직접 접근하는 방법에 대해 예제를 통해 설명한다. 마지막으로 세 가지 방법의 장단점을 비교한다."
 categories:
   - Web
 tags:

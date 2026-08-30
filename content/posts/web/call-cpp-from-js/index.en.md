@@ -2,7 +2,7 @@
 title: "Calling C++ Functions from JavaScript - ccall, cwrap"
 date: "2026-08-09T23:48:06+09:00"
 draft: false
-description: "An introduction to calling C++ functions from JavaScript. Also covers ccall and cwrap, helper functions that make it easy to pass string arguments."
+description: "An introduction to calling C++ functions from JavaScript. Passing a string argument from JS to C++ requires allocating memory in Wasm, copying the data, and freeing it again, but ccall and cwrap handle this process for you, making it easy to pass strings."
 
 categories:
   - Web

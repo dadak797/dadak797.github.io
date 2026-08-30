@@ -2,7 +2,7 @@
 title: Exchanging Arrays between JavaScript and C++ - JSON, Standard Library, Memory View
 date: 2026-08-30
 draft: false
-description: Introduces ways to pass an array as an argument when exporting a C++ function for use from JavaScript. Covers using a JSON string, using the Standard Library, and using a memory view.
+description: "Introduces ways to pass an array as an argument when exporting a C++ function for use from JavaScript. Explains, with examples, three approaches: first, passing data as a JSON string and parsing it; second, binding the Standard Library with Embind; and third, accessing Wasm memory directly through a memory view. Finally, compares the pros and cons of all three."
 categories:
   - Web
 tags:

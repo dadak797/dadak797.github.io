@@ -2,7 +2,7 @@
 title: Emscripten Module
 date: 2026-08-21
 draft: false
-description: Emscripten Module 대해 소개한다.
+description: "Emscripten Module의 역할, 초기화 설정 및 사용 방법에 대해 설명한다."
 categories:
   - Web
 tags:

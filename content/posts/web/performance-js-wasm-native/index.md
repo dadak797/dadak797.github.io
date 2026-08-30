@@ -2,7 +2,7 @@
 title: "같은 연산, 다른 실행 환경: JavaScript·WebAssembly·네이티브 C++ 성능 비교"
 date: "2026-08-02T16:27:08+09:00"
 draft: false
-description: "동일한 로직을 순수 JavaScript, WebAssembly로 컴파일한 C++, 네이티브로 컴파일한 C++을 실행하여 성능 차이를 비교합니다."
+description: "동일한 로직의 코드를 JavaScript와 C++로 작성하고 순수 JavaScript 코드, WebAssembly로 빌드된 C++ 코드, Native로 빌드된 C++ 코드의 실행 시간을 비교한다. 소수 찾기 예제를 통해 WebAssembly의 실행 시간은 Native 대비 1.002배, 순수 JavaScript의 실행 시간은 1.523배 느린 것으로 나타났다."
 
 categories:
   - Web

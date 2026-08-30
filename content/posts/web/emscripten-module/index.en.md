@@ -2,7 +2,7 @@
 title: Emscripten Module
 date: 2026-08-21
 draft: false
-description: An introduction to the Emscripten Module.
+description: "Explains the role of the Emscripten Module, how to configure its initialization, and how to use it."
 categories:
   - Web
 tags:
