@@ -443,6 +443,7 @@ Module = {
     - `Module.HEAP32` is an `Int32Array` that views the entire Wasm memory buffer in 4-byte units. You access it by index like a normal JavaScript array, but that index doesn't mean a byte offset — it means "which 4-byte slot". Since the `ptr` returned by `_malloc` is a byte address, you need to divide it by the element size (4 bytes) to use it as an index into `HEAP32`. (With a 1-byte view like `HEAP8`, there's no need to divide — you can use `ptr` directly as the index.)
 
   - Instead of manually dividing the index by the element size, you can use `Module.getValue(ptr, 'i32')` and `Module.setValue(ptr, 42, 'i32')`, which let you skip worrying about the type size. These two functions likewise need to be added to `EXPORTED_RUNTIME_METHODS` before you can use them.
+  - For a hands-on example of exchanging a whole array between C++ and JS with no copying, using a memory view, see [Exchanging Arrays between JavaScript and C++ - Using Memory Views](/en/posts/emscripten-exchange-array/#using-memory-views)
 
 - What if the `onRuntimeInitialized` callback you registered never gets called?
   - `onRuntimeInitialized` only gets called if it's already included in the Module configuration object while initialization is in progress. If you assign this property after calling the factory function, or after initialization has already finished in Non-MODULARIZE mode, that moment has already passed, so the callback won't be called.

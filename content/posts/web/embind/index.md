@@ -276,6 +276,7 @@ rect.delete();
     - `PKc`는 `const char*`의 (Itanium C++ ABI) 맹글링된 타입명. `allow_raw_pointers()`는 "raw pointer를 인자로 받는 것을 허용"할 뿐이지, `PKc` 타입 자체를 Embind에 등록(bind)해주지는 않기 때문에 JavaScript 쪽에서는 이 타입을 다룰 방법이 없어서 발생하는 오류
 
   - 즉, `allow_raw_pointers()`로 컴파일은 우회할 수 있어도 결국 사용할 수 없다는 결론은 같음. `const char*` 대신 `std::string`을 사용하는 것이 유일한 실질적인 해법
+  - 같은 이유로 `int*`, `float*` 같은 기본 타입 포인터도 인자로 직접 넘길 수 없음. 이런 경우 포인터를 정수 타입으로 캐스팅해서 넘기는 우회 방법은 [JavaScript와 C++로 배열 주고받기 - Memory View 이용하기](/posts/emscripten-exchange-array/#memory-view-이용하기) 참고
 
 - `Circle`, `Rectangle`도 `emscripten::class_`로 등록해야 하나요?
   - 위 예제처럼 `createCircle`/`createRectangle`이 `Shape*`를 리턴하는 형태로만 쓴다면 등록하지 않아도 동작함. JavaScript 쪽에서는 두 인스턴스 모두 그냥 `Shape` 타입으로만 보이고, `getArea`/`getType`처럼 `Shape`에 등록된 함수만 호출할 수 있음

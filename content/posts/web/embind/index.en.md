@@ -276,6 +276,7 @@ rect.delete();
     - `PKc` is the (Itanium C++ ABI) mangled type name for `const char*`. `allow_raw_pointers()` only "allows raw pointers to be taken as arguments" — it doesn't register the `PKc` type itself with Embind, so there's no way for the JavaScript side to handle that type, which is why this error occurs
 
   - In other words, even though `allow_raw_pointers()` lets you get past the compiler, the conclusion is the same either way: you can't actually use it. Using `std::string` instead of `const char*` is the only practical solution
+  - For the same reason, you can't pass basic-type pointers like `int*` or `float*` as arguments either. For a workaround that casts the pointer to an integer type instead, see [Exchanging Arrays between JavaScript and C++ - Using Memory Views](/en/posts/emscripten-exchange-array/#using-memory-views)
 
 - Do `Circle` and `Rectangle` also need to be registered with `emscripten::class_`?
   - If you only use `createCircle`/`createRectangle` returning a `Shape*`, as in the example above, this works fine without registering them. On the JavaScript side, both instances just look like the `Shape` type, and you can only call functions registered on `Shape`, such as `getArea`/`getType`

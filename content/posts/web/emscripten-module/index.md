@@ -443,6 +443,7 @@ Module = {
     - `Module.HEAP32`는 Wasm 메모리 버퍼 전체를 4바이트 단위로 나눠서 보는 `Int32Array`입니다. 자바스크립트 배열처럼 인덱스로 접근하지만, 이 인덱스는 바이트 오프셋이 아니라 "몇 번째 4바이트 칸인지"를 의미합니다. `_malloc`이 돌려주는 `ptr`은 바이트 단위 주소이므로, `HEAP32`의 인덱스로 쓰려면 원소 크기(4바이트)로 나눠서 변환해야 합니다. (`HEAP8`처럼 1바이트 단위 뷰라면 나눌 필요 없이 `ptr`을 그대로 인덱스로 사용합니다.)
 
   - 인덱스를 원소 크기로 직접 나눠 계산하는 대신, `Module.getValue(ptr, 'i32')`와 `Module.setValue(ptr, 42, 'i32')`를 사용하면 타입 크기를 신경 쓰지 않아도 됩니다. 이 두 함수 역시 `EXPORTED_RUNTIME_METHODS`에 추가해야 사용할 수 있습니다.
+  - Memory View를 이용해서 배열 전체를 C++과 JS 사이에 복사 없이 주고받는 실전 예제는 [JavaScript와 C++로 배열 주고받기 - Memory View 이용하기](/posts/emscripten-exchange-array/#memory-view-이용하기) 참고
 
 - `onRuntimeInitialized` 콜백을 등록했는데 호출되지 않는 경우는요?
   - `onRuntimeInitialized`는 초기화가 진행되는 동안 Module 설정 객체에 이미 포함되어 있어야 호출됩니다. 팩토리 함수를 호출한 뒤, 혹은 Non-MODULARIZE에서 초기화가 이미 끝난 뒤에 뒤늦게 이 속성을 할당하면 그 시점은 이미 지나가버렸기 때문에 콜백이 호출되지 않습니다.
