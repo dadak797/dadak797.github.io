@@ -10,9 +10,8 @@ categories:
 
 tags:
   - emscripten
-  - webassembly
-  - javascript
-  - cpp
+  - emsdk
+  - installation
 
 ShowToc: true
 TocOpen: false

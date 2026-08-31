@@ -7,10 +7,8 @@ categories:
   - Web
 tags:
   - emscripten
-  - webassembly
-  - javascript
-  - cpp
   - memfs
+  - virtual-file-system
 ShowToc: true
 TocOpen: false
 ShowReadingTime: false
@@ -353,6 +351,8 @@ EMSCRIPTEN_BINDINGS(my_module) {
 }
 ```
 
+- `EMSCRIPTEN_BINDINGS`
+  - Uses `emscripten::function` to bind `LoadObjFiles` and `MergeAndDownloadObjFiles` as regular functions ([Binding Regular Functions - Embind](/en/posts/embind/#binding-regular-functions))
 - `ObjFile`
   - A struct for holding an OBJ file
   - Doesn't include material info, since this code doesn't read the material (`.mtl`) file
@@ -368,7 +368,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
   - A function that merges the multiple objects stored in `g_ObjFiles` into a single file and downloads it
   - Writes vertex coordinates, normals, texture coordinates, and face info, in that order
   - When writing face info, applies an offset to the vertex IDs so they point to the correct vertex
-  - The `EM_ASM` part: downloads the file using the DOM and JavaScript
+  - The `EM_ASM` part: downloads the file using the DOM and JavaScript ([Calling JavaScript Functions from C++ - EM_ASM, EM_JS](/en/posts/call-js-from-cpp/))
   - Right now the download logic is placed inside `EM_ASM` in the C++ code, but you could instead change `MergeAndDownloadObjFiles` to just return the path of the merged file (`MERGED_OBJ_FILE`) instead of downloading it. In that case, the same result can be achieved by having the JavaScript side call `Module.FS.readFile` with that path, create a Blob, and run the download code
 
 ### Source Code - index.html

@@ -7,10 +7,8 @@ categories:
   - Web
 tags:
   - emscripten
-  - webassembly
-  - javascript
-  - cpp
   - memfs
+  - virtual-file-system
 ShowToc: true
 TocOpen: false
 ShowReadingTime: false
@@ -353,6 +351,8 @@ EMSCRIPTEN_BINDINGS(my_module) {
 }
 ```
 
+- `EMSCRIPTEN_BINDINGS`
+  - `emscripten::function`을 이용하여 `LoadObjFiles`, `MergeAndDownloadObjFiles`를 일반 함수로 바인딩 ([일반 함수 바인딩 하기 - Embind](/posts/embind/#일반-함수-바인딩-하기))
 - `ObjFile`
   - OBJ 파일을 담기 위한 구조체
   - 현재 파일은 material(`.mtl`)을 읽고 있지 않아 material은 포함하지 않음
@@ -368,7 +368,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
   - `g_ObjFiles`에 저장된 여러 개의 object를 하나의 파일로 합친 후 다운로드 하는 함수
   - Vertex 좌표, normal, texture 좌표, face 정보 순으로 작성
   - Face 정보를 작성할 때는 vertex ID에 오프셋을 적용하여 정확한 vertex를 가리키게 함
-  - `EM_ASM` 부분: DOM과 JavaScript를 이용하여 파일을 다운로드
+  - `EM_ASM` 부분: DOM과 JavaScript를 이용하여 파일을 다운로드 ([C++에서 JavaScript의 함수를 호출하기 - EM_ASM, EM_JS](/posts/call-js-from-cpp/))
   - 지금은 다운로드 로직을 C++ 코드 안의 EM_ASM에 넣었지만, MergeAndDownloadObjFiles가 다운로드 대신 병합된 파일의 경로(MERGED_OBJ_FILE)만 리턴하도록 바꿀 수도 있음. 이 경우 JavaScript 쪽에서 그 경로로 Module.FS.readFile을 호출해 파일을 읽고 Blob을 만들어 다운로드하는 코드를 실행하면 동일한 결과를 얻을 수 있음
 
 ### 소스 코드 - index.html

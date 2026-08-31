@@ -11,7 +11,7 @@ categories:
 tags:
   - emscripten
   - webassembly
-  - javascript
+  - compiler
 
 ShowToc: true
 TocOpen: false

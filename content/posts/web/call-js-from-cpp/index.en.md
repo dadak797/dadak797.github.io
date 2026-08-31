@@ -7,9 +7,8 @@ categories:
   - Web
 tags:
   - emscripten
-  - webassembly
-  - javascript
-  - cpp
+  - em_asm
+  - em_js
 ShowToc: true
 TocOpen: false
 ShowReadingTime: false
@@ -207,7 +206,7 @@ _Figure 2. You can see the mouse position being printed to both the HTML and the
   - As with `ccall` and `cwrap`, for a function you'll call repeatedly it's better to wrap it once with `EM_JS`; for a one-off call, `EM_ASM` is more convenient ([Calling C++ Functions from JavaScript](/en/posts/call-cpp-from-js/#faq))
 - Looking at the examples, it seems like this could just be handled in JavaScript — is it really necessary to call JavaScript from C++?
   - You might not feel a strong need to in the examples above. But there are cases where you're required to use JavaScript code from within C++, such as the following:
-  - When your C++ code needs to open a file browser dialog and read a file ([Working with Files in WebAssembly]())
+  - When your C++ code needs to open a file browser dialog and read a file ([Working with Files in WebAssembly](/en/posts/emscripten-file-handling-memfs/))
   - When your C++ code needs to use the JavaScript Fetch API ([Fetching Data in WebAssembly]())
   - When doing graphics programming in C++ (WebGL, WebGPU) and you need to resize the frame buffer according to the browser's size
 - What happens if I call an asynchronous function from `EM_ASM` or `EM_JS`?

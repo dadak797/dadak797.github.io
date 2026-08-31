@@ -9,9 +9,8 @@ categories:
 
 tags:
   - emscripten
-  - webassembly
-  - javascript
-  - cpp
+  - ccall
+  - cwrap
 
 ShowToc: true
 TocOpen: false

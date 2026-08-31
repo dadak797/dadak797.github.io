@@ -7,9 +7,8 @@ categories:
   - Web
 tags:
   - emscripten
-  - webassembly
-  - javascript
-  - cpp
+  - embind
+  - class-binding
 ShowToc: true
 TocOpen: false
 ShowReadingTime: false

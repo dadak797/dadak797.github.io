@@ -7,9 +7,8 @@ categories:
   - Web
 tags:
   - emscripten
-  - webassembly
-  - javascript
-  - cpp
+  - json
+  - memory-view
 ShowToc: true
 TocOpen: false
 ShowReadingTime: false

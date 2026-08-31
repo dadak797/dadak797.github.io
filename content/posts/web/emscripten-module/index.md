@@ -7,9 +7,8 @@ categories:
   - Web
 tags:
   - emscripten
-  - webassembly
-  - javascript
-  - cpp
+  - module
+  - stdout-stderr
 ShowToc: true
 TocOpen: false
 ShowReadingTime: false
