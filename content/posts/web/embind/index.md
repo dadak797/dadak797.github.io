@@ -212,7 +212,7 @@ EMSCRIPTEN_BINDINGS(shape_module) {
   - `()`: JavaScript에서 사용할 클래스의 이름
   - `.function()`: 내보내고 싶은 클래스 멤버 함수를 추가
 - `emscripten::function`
-  - Static 멤버 함수의 경우에는 특정 클래스 인스턴스와 독립적이기 때문에, 별도의 함수로 내보낼 수 있음
+  - 일반 멤버 함수는 호출할 클래스 인스턴스가 필요하므로 `emscripten::function`을 통해 독립된 함수로 직접 내보낼 수 없음. 반면 static 멤버 함수는 특정 인스턴스와 독립적이므로, 이 예제처럼 별도의 함수로 내보낼 수 있음
   - `emscripten::allow_raw_pointers()`: `createCircle`, `createRectangle` 함수를 통해 `Circle`, `Rectangle` 클래스의 인스턴스를 생성한 후 포인터(`Shape*`)를 리턴하기 위해 붙여줘야 함. `Shape` 클래스가 Embind를 통해 등록되어 있어야 오류가 발생하지 않음
 - `Circle`, `Rectangle`은 별도로 `emscripten::class_`에 등록하지 않았지만, `Shape`의 가상 함수(`GetArea`)를 통한 다형성만으로 각 파생 클래스의 동작을 그대로 사용할 수 있음. 즉, 파생 클래스마다 개별적으로 바인딩을 작성하지 않고 베이스 클래스 하나만 최소한으로 노출해도 필요한 기능을 구현할 수 있음
 

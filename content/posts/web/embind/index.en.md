@@ -212,7 +212,7 @@ EMSCRIPTEN_BINDINGS(shape_module) {
   - `()`: the name to use for the class in JavaScript
   - `.function()`: adds a member function of the class that you want to export
 - `emscripten::function`
-  - A static member function is independent of any particular class instance, so it can be exported as a standalone function
+  - A non-static member function requires a class instance to invoke, so it cannot be exported directly as a standalone function via `emscripten::function`. A static member function, by contrast, is independent of any particular instance and can be exported separately as shown in this example
   - `emscripten::allow_raw_pointers()`: required because `createCircle` and `createRectangle` create a `Circle` or `Rectangle` instance and then return a pointer (`Shape*`). This won't cause an error only because the `Shape` class is already registered with Embind
 - `Circle` and `Rectangle` are never registered with `emscripten::class_` on their own, yet polymorphism through `Shape`'s virtual function (`GetArea`) is enough to use each derived class's behavior as-is. In other words, exposing just a single base class at minimum — without writing a separate binding for every derived class — is enough to implement the functionality you need
 
