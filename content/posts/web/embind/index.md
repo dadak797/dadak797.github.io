@@ -248,67 +248,74 @@ rect.delete();
 
 ## FAQ
 
-- Embind에서 `const char*`를 함수의 인자로 사용하면 어떻게 되나요?
-  - 예를 들어 아래와 같이 `const char*`를 인자로 받는 함수를 바인딩한다고 하면
+{{< faq summary="Embind에서 `const char*`를 함수의 인자로 사용하면 어떻게 되나요?" >}}
+- 예를 들어 아래와 같이 `const char*`를 인자로 받는 함수를 바인딩한다고 하면
 
-    ```C++
-    void test(const char* str) {}
+  ```C++
+  void test(const char* str) {}
 
-    EMSCRIPTEN_BINDINGS(my_module) {
-      emscripten::function("js_test", &test);
-    }
-    ```
+  EMSCRIPTEN_BINDINGS(my_module) {
+    emscripten::function("js_test", &test);
+  }
+  ```
 
-  - 아무 정책 없이 사용하면 컴파일 단계에서 바로 막힘
+- 아무 정책 없이 사용하면 컴파일 단계에서 바로 막힘
 
-    ```
-    error: static assertion failed due to requirement '!std::is_pointer<const char *>::value':
-    Implicitly binding raw pointers is illegal.  Specify allow_raw_pointer<arg<?>>
-    ```
+  ```
+  error: static assertion failed due to requirement '!std::is_pointer<const char *>::value':
+  Implicitly binding raw pointers is illegal.  Specify allow_raw_pointer<arg<?>>
+  ```
 
-  - `emscripten::allow_raw_pointers()`를 추가하면 컴파일은 통과하지만, 실제로 JavaScript에서 그 함수를 호출하는 순간 런타임 에러가 발생함
+- `emscripten::allow_raw_pointers()`를 추가하면 컴파일은 통과하지만, 실제로 JavaScript에서 그 함수를 호출하는 순간 런타임 에러가 발생함
 
-    ```
-    Uncaught UnboundTypeError: Cannot call js_test due to unbound types: PKc
-    ```
+  ```
+  Uncaught UnboundTypeError: Cannot call js_test due to unbound types: PKc
+  ```
 
-    - `PKc`는 `const char*`의 (Itanium C++ ABI) 맹글링된 타입명. `allow_raw_pointers()`는 "raw pointer를 인자로 받는 것을 허용"할 뿐이지, `PKc` 타입 자체를 Embind에 등록(bind)해주지는 않기 때문에 JavaScript 쪽에서는 이 타입을 다룰 방법이 없어서 발생하는 오류
+  - `PKc`는 `const char*`의 (Itanium C++ ABI) 맹글링된 타입명. `allow_raw_pointers()`는 "raw pointer를 인자로 받는 것을 허용"할 뿐이지, `PKc` 타입 자체를 Embind에 등록(bind)해주지는 않기 때문에 JavaScript 쪽에서는 이 타입을 다룰 방법이 없어서 발생하는 오류
 
-  - 즉, `allow_raw_pointers()`로 컴파일은 우회할 수 있어도 결국 사용할 수 없다는 결론은 같음. `const char*` 대신 `std::string`을 사용하는 것이 유일한 실질적인 해법
-  - 같은 이유로 `int*`, `float*` 같은 기본 타입 포인터도 인자로 직접 넘길 수 없음. 이런 경우 포인터를 정수 타입으로 캐스팅해서 넘기는 우회 방법은 [JavaScript와 C++로 배열 주고받기 - Memory View 이용하기](/posts/emscripten-exchange-array/#memory-view-이용하기) 참고
+- 즉, `allow_raw_pointers()`로 컴파일은 우회할 수 있어도 결국 사용할 수 없다는 결론은 같음. `const char*` 대신 `std::string`을 사용하는 것이 유일한 실질적인 해법
+- 같은 이유로 `int*`, `float*` 같은 기본 타입 포인터도 인자로 직접 넘길 수 없음. 이런 경우 포인터를 정수 타입으로 캐스팅해서 넘기는 우회 방법은 [JavaScript와 C++로 배열 주고받기 - Memory View 이용하기](/posts/emscripten-exchange-array/#memory-view-이용하기) 참고
 
-- `Circle`, `Rectangle`도 `emscripten::class_`로 등록해야 하나요?
-  - 위 예제처럼 `createCircle`/`createRectangle`이 `Shape*`를 리턴하는 형태로만 쓴다면 등록하지 않아도 동작함. JavaScript 쪽에서는 두 인스턴스 모두 그냥 `Shape` 타입으로만 보이고, `getArea`/`getType`처럼 `Shape`에 등록된 함수만 호출할 수 있음
-  - 만약 `Circle`에만 있는 함수(예: `getRadius`)를 JavaScript에서 호출하고 싶거나, `circle instanceof Module.Circle`처럼 실제 타입을 구분하고 싶다면 `emscripten::base<Shape>`를 지정해서 상속 관계를 등록해야 함
+{{< /faq >}}
 
-    ```C++
-    emscripten::class_<Circle, emscripten::base<Shape>>("Circle")
-      .function("getRadius", &Circle::GetRadius);
-    ```
+{{< faq summary="`Circle`, `Rectangle`도 `emscripten::class_`로 등록해야 하나요?" >}}
+- 위 예제처럼 `createCircle`/`createRectangle`이 `Shape*`를 리턴하는 형태로만 쓴다면 등록하지 않아도 동작함. JavaScript 쪽에서는 두 인스턴스 모두 그냥 `Shape` 타입으로만 보이고, `getArea`/`getType`처럼 `Shape`에 등록된 함수만 호출할 수 있음
+- 만약 `Circle`에만 있는 함수(예: `getRadius`)를 JavaScript에서 호출하고 싶거나, `circle instanceof Module.Circle`처럼 실제 타입을 구분하고 싶다면 `emscripten::base<Shape>`를 지정해서 상속 관계를 등록해야 함
 
-  - 이렇게 등록해두면 `createCircle`이 리턴한 `Shape*`를 Embind가 실제로는 `Circle` 인스턴스라는 것을 인식해서, JavaScript에서 `getRadius`도 호출할 수 있고 `circle instanceof Module.Circle`도 `true`가 됨
-  - `getRadius`는 virtual 함수가 아닌데도 `Shape*`로부터 호출이 가능한데, 이는 C++에서 베이스 포인터로 non-virtual 자식 함수를 호출할 수 없는 것과는 다른, Embind 고유의 동작임
+  ```C++
+  emscripten::class_<Circle, emscripten::base<Shape>>("Circle")
+    .function("getRadius", &Circle::GetRadius);
+  ```
 
-- 팩토리 함수 없이 `new Module.Circle(5.0)`처럼 바로 생성할 수 있나요?
-  - 지금 예제의 `Circle`, `Rectangle`은 생성자가 `private`이라 `.constructor<>()`로 직접 등록할 수 없음. 이 때문에 `static Create()` 팩토리 함수를 `emscripten::function`으로 따로 내보낸 것
-  - 생성자를 `public`으로 바꾸면 `.constructor<double>()`을 붙여서 JavaScript에서 직접 생성할 수 있음
+- 이렇게 등록해두면 `createCircle`이 리턴한 `Shape*`를 Embind가 실제로는 `Circle` 인스턴스라는 것을 인식해서, JavaScript에서 `getRadius`도 호출할 수 있고 `circle instanceof Module.Circle`도 `true`가 됨
+- `getRadius`는 virtual 함수가 아닌데도 `Shape*`로부터 호출이 가능한데, 이는 C++에서 베이스 포인터로 non-virtual 자식 함수를 호출할 수 없는 것과는 다른, Embind 고유의 동작임
 
-    ```C++
-    emscripten::class_<Circle, emscripten::base<Shape>>("Circle")
-      .constructor<double>()
-      .function("getRadius", &Circle::GetRadius);
-    ```
+{{< /faq >}}
 
-    ```JavaScript
-    const circle = new Module.Circle(5.0);  // createCircle 없이 바로 생성
-    ```
+{{< faq summary="팩토리 함수 없이 `new Module.Circle(5.0)`처럼 바로 생성할 수 있나요?" >}}
+- 지금 예제의 `Circle`, `Rectangle`은 생성자가 `private`이라 `.constructor<>()`로 직접 등록할 수 없음. 이 때문에 `static Create()` 팩토리 함수를 `emscripten::function`으로 따로 내보낸 것
+- 생성자를 `public`으로 바꾸면 `.constructor<double>()`을 붙여서 JavaScript에서 직접 생성할 수 있음
 
-  - 단, `Shape`처럼 추상 클래스는 인스턴스를 만들 수 없으므로 `.constructor<>()`를 등록할 수 없고, 파생 클래스에만 등록 가능함
+  ```C++
+  emscripten::class_<Circle, emscripten::base<Shape>>("Circle")
+    .constructor<double>()
+    .function("getRadius", &Circle::GetRadius);
+  ```
 
-- `delete()`를 호출했는데도 메모리가 해제되지 않거나, 반대로 이미 지운 객체를 써서 에러가 나는 경우는요?
-  - 함수가 클래스 인스턴스를 값(by-value)으로 리턴하거나 인자로 받으면, 그 과정에서 임시 복사본이 추가로 생성됨. 필요한 인스턴스만 `delete()`하고 이 임시 복사본은 놓치기 쉬움
-  - 예외가 발생해서 함수가 중간에 빠져나가는 경로에는 `delete()` 호출이 누락되기 쉬움. C++에서 RAII로 자연스럽게 해결되는 문제가 Embind로 넘어온 JS 객체에는 적용되지 않으므로, `try`/`finally`로 명시적으로 `delete()`를 보장해야 함
-  - 반대로, 같은 인스턴스를 여러 변수에 담아두고 그중 하나만 `delete()`하면 나머지 변수로 메서드를 호출할 때 "using deleted object" 계열의 에러가 발생함. 이는 실제로 이미 해제된 객체를 안전하게 걸러주는 Embind의 보호 장치이므로, 에러가 난다면 어딘가에서 이미 `delete()`가 호출된 참조를 들고 있다는 신호로 보면 됨
+  ```JavaScript
+  const circle = new Module.Circle(5.0);  // createCircle 없이 바로 생성
+  ```
+
+- 단, `Shape`처럼 추상 클래스는 인스턴스를 만들 수 없으므로 `.constructor<>()`를 등록할 수 없고, 파생 클래스에만 등록 가능함
+
+{{< /faq >}}
+
+{{< faq summary="`delete()`를 호출했는데도 메모리가 해제되지 않거나, 반대로 이미 지운 객체를 써서 에러가 나는 경우는요?" >}}
+- 함수가 클래스 인스턴스를 값(by-value)으로 리턴하거나 인자로 받으면, 그 과정에서 임시 복사본이 추가로 생성됨. 필요한 인스턴스만 `delete()`하고 이 임시 복사본은 놓치기 쉬움
+- 예외가 발생해서 함수가 중간에 빠져나가는 경로에는 `delete()` 호출이 누락되기 쉬움. C++에서 RAII로 자연스럽게 해결되는 문제가 Embind로 넘어온 JS 객체에는 적용되지 않으므로, `try`/`finally`로 명시적으로 `delete()`를 보장해야 함
+- 반대로, 같은 인스턴스를 여러 변수에 담아두고 그중 하나만 `delete()`하면 나머지 변수로 메서드를 호출할 때 "using deleted object" 계열의 에러가 발생함. 이는 실제로 이미 해제된 객체를 안전하게 걸러주는 Embind의 보호 장치이므로, 에러가 난다면 어딘가에서 이미 `delete()`가 호출된 참조를 들고 있다는 신호로 보면 됨
+{{< /faq >}}
 
 ## 참고 자료
 

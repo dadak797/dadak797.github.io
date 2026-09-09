@@ -195,23 +195,29 @@ em++ hello_c_api.cpp -o index.html --shell-file template.html -s EXPORTED_FUNCTI
 
 ## FAQ
 
-- JavaScript에서 C++의 클래스를 사용하는 방법은 없나요?
-  - Embind([JavaScript에서 C++ 클래스 사용하기](/posts/embind/))와 WebIDL Binder를 활용하면 C++의 클래스를 내보내고, JavaScript에서 내보낸 클래스 인스턴스를 생성할 수도 있습니다.
-- ccall과 cwrap 중 어느 걸 써야 하나요?
-  - 반복 호출이 많은 함수는 `cwrap`으로 한 번 감싸 쓰는 게 유리하고, 한 번만 호출한다면 `ccall`이 간편함
-- "ccall is not defined" 같은 에러가 나요.
-  - `EXPORTED_RUNTIME_METHODS`에 추가하는 걸 빠뜨렸는지 확인해 볼 것
-- C++ 함수가 반환하는 문자열은 어떻게 리턴 받나요?
-  - `ccall`의 리턴 타입에 `string`을 쓰면 내부적으로 `UTF8ToString`을 호출해 C++ 문자열을 JavaScript 문자열로 자동 변환해 줌
-  - 아래의 예제는 문자열이 읽기 전용 데이터 영역에 저장되어 프로그램의 종료 시점까지 유효하지만 지역 변수로 스택에 생성한 문자열은 함수를 벗어나는 순간 삭제되기 때문에 포인터(const char\*)만 반환하는 형태로는 크래시가 발생할 수 있다는 점에 유의해야 함. 이는 native C++에서도 동일하게 발생하는 문제임
+{{< faq summary="JavaScript에서 C++의 클래스를 사용하는 방법은 없나요?" >}}
+- Embind([JavaScript에서 C++ 클래스 사용하기](/posts/embind/))와 WebIDL Binder를 활용하면 C++의 클래스를 내보내고, JavaScript에서 내보낸 클래스 인스턴스를 생성할 수도 있습니다.
+{{< /faq >}}
+
+{{< faq summary="ccall과 cwrap 중 어느 걸 써야 하나요?" >}}
+- 반복 호출이 많은 함수는 `cwrap`으로 한 번 감싸 쓰는 게 유리하고, 한 번만 호출한다면 `ccall`이 간편함
+{{< /faq >}}
+
+{{< faq summary="\"ccall is not defined\" 같은 에러가 나요." >}}
+- `EXPORTED_RUNTIME_METHODS`에 추가하는 걸 빠뜨렸는지 확인해 볼 것
+{{< /faq >}}
+
+{{< faq summary="C++ 함수가 반환하는 문자열은 어떻게 리턴 받나요?" >}}
+- `ccall`의 리턴 타입에 `string`을 쓰면 내부적으로 `UTF8ToString`을 호출해 C++ 문자열을 JavaScript 문자열로 자동 변환해 줌
+- 아래의 예제는 문자열이 읽기 전용 데이터 영역에 저장되어 프로그램의 종료 시점까지 유효하지만 지역 변수로 스택에 생성한 문자열은 함수를 벗어나는 순간 삭제되기 때문에 포인터(const char\*)만 반환하는 형태로는 크래시가 발생할 수 있다는 점에 유의해야 함. 이는 native C++에서도 동일하게 발생하는 문제임
 
 ```C++
 // C++
 extern "C" {
-  EMSCRIPTEN_KEEPALIVE
-  const char* get_hello() {
-    return "Hello from C++!";
-  }
+EMSCRIPTEN_KEEPALIVE
+const char* get_hello() {
+  return "Hello from C++!";
+}
 }
 
 // JavaScript
@@ -219,9 +225,12 @@ const helloStr = Module.ccall('get_hello', 'string', [], []);
 console.log(helloStr);  // "Hello from C++!"를 출력함
 ```
 
-- 구조체나 클래스를 반환하는 함수는 `ccall`로 호출할 수 있나요?
-  - `ccall`/`cwrap`의 리턴 타입은 `number`, `string`, `boolean`, `array` 정도만 지원하기 때문에 여러 필드로 이루어진 구조체나 클래스를 그대로 표현할 수 없습니다. 게다가 구조체를 값으로 반환하는 함수는 C/Wasm 레벨에서 아예 다른 형태(숨겨진 포인터 인자로 결과를 받는 방식)로 컴파일되기 때문에, 인자 없이 호출하면 크래시가 날 수도 있습니다.
-  - 이런 마샬링을 자동으로 처리해주는 것이 Embind 입니다. [JavaScript에서 C++ 클래스 사용하기](/posts/embind/)를 참고
+{{< /faq >}}
+
+{{< faq summary="구조체나 클래스를 반환하는 함수는 `ccall`로 호출할 수 있나요?" >}}
+- `ccall`/`cwrap`의 리턴 타입은 `number`, `string`, `boolean`, `array` 정도만 지원하기 때문에 여러 필드로 이루어진 구조체나 클래스를 그대로 표현할 수 없습니다. 게다가 구조체를 값으로 반환하는 함수는 C/Wasm 레벨에서 아예 다른 형태(숨겨진 포인터 인자로 결과를 받는 방식)로 컴파일되기 때문에, 인자 없이 호출하면 크래시가 날 수도 있습니다.
+- 이런 마샬링을 자동으로 처리해주는 것이 Embind 입니다. [JavaScript에서 C++ 클래스 사용하기](/posts/embind/)를 참고
+{{< /faq >}}
 
 ## 참고 자료
 

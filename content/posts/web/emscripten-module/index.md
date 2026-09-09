@@ -421,51 +421,60 @@ Module = {
 
 ## FAQ
 
-- [`EM_ASM`/`EM_JS`](/posts/call-js-from-cpp/)로 JS를 호출하는 C++ 코드가 있는데, `MODULARIZE`와 `EXPORT_NAME`으로 빌드하면 모듈 이름을 C++ 작성 시점에 알아야 하나요?
-  - 아니요. `-sMODULARIZE -sEXPORT_NAME=createModuleA`로 빌드해도 `EM_JS`/`EM_ASM`에서는 일반적으로 `Module`을 사용하면 됩니다.
-  - 일반적인 `-sMODULARIZE` 빌드에서 `EXPORT_NAME`으로 지정하는 이름(예: `createModuleA`)은 외부 JavaScript에서 모듈 인스턴스를 생성하기 위한 factory function의 이름입니다.
-  - 반면 `EM_ASM`/`EM_JS` 안에서 사용하는 `Module`은 생성된 접착 코드의 private scope 안에서 현재 모듈 인스턴스를 참조하는 이름입니다. 따라서 `EXPORT_NAME`과는 역할이 다르며, C++ 코드가 `EXPORT_NAME` 값을 알 필요는 없습니다.
-  - 단, 실험적인 `-sMODULARIZE=instance` 모드에서는 현재 `EM_JS` 및 JS library code 내부의 `Module` 사용이 지원되지 않습니다. 일반적인 `MODULARIZE + EXPORT_ES6`는 이 제한과 구별해야 합니다. (emsdk 6.0.8 기준)
+{{< faq summary="[`EM_ASM`/`EM_JS`](/posts/call-js-from-cpp/)로 JS를 호출하는 C++ 코드가 있는데, `MODULARIZE`와 `EXPORT_NAME`으로 빌드하면 모듈 이름을 C++ 작성 시점에 알아야 하나요?" >}}
+- 아니요. `-sMODULARIZE -sEXPORT_NAME=createModuleA`로 빌드해도 `EM_JS`/`EM_ASM`에서는 일반적으로 `Module`을 사용하면 됩니다.
+- 일반적인 `-sMODULARIZE` 빌드에서 `EXPORT_NAME`으로 지정하는 이름(예: `createModuleA`)은 외부 JavaScript에서 모듈 인스턴스를 생성하기 위한 factory function의 이름입니다.
+- 반면 `EM_ASM`/`EM_JS` 안에서 사용하는 `Module`은 생성된 접착 코드의 private scope 안에서 현재 모듈 인스턴스를 참조하는 이름입니다. 따라서 `EXPORT_NAME`과는 역할이 다르며, C++ 코드가 `EXPORT_NAME` 값을 알 필요는 없습니다.
+- 단, 실험적인 `-sMODULARIZE=instance` 모드에서는 현재 `EM_JS` 및 JS library code 내부의 `Module` 사용이 지원되지 않습니다. 일반적인 `MODULARIZE + EXPORT_ES6`는 이 제한과 구별해야 합니다. (emsdk 6.0.8 기준)
 
-- Module을 통해 Wasm의 Heap 메모리에는 어떻게 접근하나요?
-  - Module은 Wasm의 선형 메모리를 가리키는 타입드 배열 뷰를 제공합니다. 대표적으로 `Module.HEAP8`/`Module.HEAPU8`(8비트), `Module.HEAP32`/`Module.HEAPU32`(32비트 정수), `Module.HEAPF64`(64비트 부동소수점) 등이 있으며, 원하는 단위로 메모리를 직접 읽고 쓸 수 있습니다.
-  - 단, 이 뷰들은 기본적으로 Module에 내보내지지 않습니다. Emscripten의 설명에 따르면 예전에는 여러 런타임 요소를 기본으로 노출했지만 지금은 전부 제거되었고, 필요한 것은 `EXPORTED_RUNTIME_METHODS`에 직접 추가해야 합니다. 예를 들어 `-s EXPORTED_RUNTIME_METHODS=HEAP32,getValue,setValue`처럼 빌드 옵션을 지정해야 아래 예제가 동작합니다.
-  - 예를 들어 C++에서 `malloc`으로 할당한 4바이트 버퍼에 정수를 쓰고 읽으려면 다음과 같이 사용할 수 있습니다.
+{{< /faq >}}
 
-    ```JavaScript
-    const ptr = Module._malloc(4);        // ptr은 Wasm 힙 상의 바이트 오프셋
-    Module.HEAP32[ptr / 4] = 42;          // ptr / 4: HEAP32는 4바이트(32비트) 단위로 접근하는 뷰이므로, 바이트 오프셋을 4로 나눠 "몇 번째 4바이트 원소인지"를 나타내는 인덱스로 바꿔줌
-    console.log(Module.HEAP32[ptr / 4]);  // 42
-    Module._free(ptr);
-    ```
+{{< faq summary="Module을 통해 Wasm의 Heap 메모리에는 어떻게 접근하나요?" >}}
+- Module은 Wasm의 선형 메모리를 가리키는 타입드 배열 뷰를 제공합니다. 대표적으로 `Module.HEAP8`/`Module.HEAPU8`(8비트), `Module.HEAP32`/`Module.HEAPU32`(32비트 정수), `Module.HEAPF64`(64비트 부동소수점) 등이 있으며, 원하는 단위로 메모리를 직접 읽고 쓸 수 있습니다.
+- 단, 이 뷰들은 기본적으로 Module에 내보내지지 않습니다. Emscripten의 설명에 따르면 예전에는 여러 런타임 요소를 기본으로 노출했지만 지금은 전부 제거되었고, 필요한 것은 `EXPORTED_RUNTIME_METHODS`에 직접 추가해야 합니다. 예를 들어 `-s EXPORTED_RUNTIME_METHODS=HEAP32,getValue,setValue`처럼 빌드 옵션을 지정해야 아래 예제가 동작합니다.
+- 예를 들어 C++에서 `malloc`으로 할당한 4바이트 버퍼에 정수를 쓰고 읽으려면 다음과 같이 사용할 수 있습니다.
 
-    - `Module.HEAP32`는 Wasm 메모리 버퍼 전체를 4바이트 단위로 나눠서 보는 `Int32Array`입니다. 자바스크립트 배열처럼 인덱스로 접근하지만, 이 인덱스는 바이트 오프셋이 아니라 "몇 번째 4바이트 칸인지"를 의미합니다. `_malloc`이 돌려주는 `ptr`은 바이트 단위 주소이므로, `HEAP32`의 인덱스로 쓰려면 원소 크기(4바이트)로 나눠서 변환해야 합니다. (`HEAP8`처럼 1바이트 단위 뷰라면 나눌 필요 없이 `ptr`을 그대로 인덱스로 사용합니다.)
+  ```JavaScript
+  const ptr = Module._malloc(4);        // ptr은 Wasm 힙 상의 바이트 오프셋
+  Module.HEAP32[ptr / 4] = 42;          // ptr / 4: HEAP32는 4바이트(32비트) 단위로 접근하는 뷰이므로, 바이트 오프셋을 4로 나눠 "몇 번째 4바이트 원소인지"를 나타내는 인덱스로 바꿔줌
+  console.log(Module.HEAP32[ptr / 4]);  // 42
+  Module._free(ptr);
+  ```
 
-  - 인덱스를 원소 크기로 직접 나눠 계산하는 대신, `Module.getValue(ptr, 'i32')`와 `Module.setValue(ptr, 42, 'i32')`를 사용하면 타입 크기를 신경 쓰지 않아도 됩니다. 이 두 함수 역시 `EXPORTED_RUNTIME_METHODS`에 추가해야 사용할 수 있습니다.
-  - Memory View를 이용해서 배열 전체를 C++과 JS 사이에 복사 없이 주고받는 실전 예제는 [JavaScript와 C++로 배열 주고받기 - Memory View 이용하기](/posts/emscripten-exchange-array/#memory-view-이용하기) 참고
+  - `Module.HEAP32`는 Wasm 메모리 버퍼 전체를 4바이트 단위로 나눠서 보는 `Int32Array`입니다. 자바스크립트 배열처럼 인덱스로 접근하지만, 이 인덱스는 바이트 오프셋이 아니라 "몇 번째 4바이트 칸인지"를 의미합니다. `_malloc`이 돌려주는 `ptr`은 바이트 단위 주소이므로, `HEAP32`의 인덱스로 쓰려면 원소 크기(4바이트)로 나눠서 변환해야 합니다. (`HEAP8`처럼 1바이트 단위 뷰라면 나눌 필요 없이 `ptr`을 그대로 인덱스로 사용합니다.)
 
-- `onRuntimeInitialized` 콜백을 등록했는데 호출되지 않는 경우는요?
-  - `onRuntimeInitialized`는 초기화가 진행되는 동안 Module 설정 객체에 이미 포함되어 있어야 호출됩니다. 팩토리 함수를 호출한 뒤, 혹은 Non-MODULARIZE에서 초기화가 이미 끝난 뒤에 뒤늦게 이 속성을 할당하면 그 시점은 이미 지나가버렸기 때문에 콜백이 호출되지 않습니다.
-  - MODULARIZE 방식에서는 팩토리 함수가 반환하는 Promise 자체가 런타임 초기화(내부적으로 `onRuntimeInitialized` 호출까지 포함)가 끝난 뒤에야 resolve 됩니다. 따라서 `onRuntimeInitialized`를 따로 등록할 필요 없이, `await createModule()` 다음 줄에 코드를 바로 이어서 작성해도 안전합니다.
+- 인덱스를 원소 크기로 직접 나눠 계산하는 대신, `Module.getValue(ptr, 'i32')`와 `Module.setValue(ptr, 42, 'i32')`를 사용하면 타입 크기를 신경 쓰지 않아도 됩니다. 이 두 함수 역시 `EXPORTED_RUNTIME_METHODS`에 추가해야 사용할 수 있습니다.
+- Memory View를 이용해서 배열 전체를 C++과 JS 사이에 복사 없이 주고받는 실전 예제는 [JavaScript와 C++로 배열 주고받기 - Memory View 이용하기](/posts/emscripten-exchange-array/#memory-view-이용하기) 참고
 
-- 같은 팩토리 함수를 여러 번 호출하면 어떻게 되나요? 하나의 모듈로 여러 인스턴스를 만들 수 있나요?
-  - 네, 이것이 `MODULARIZE`의 핵심 장점 중 하나입니다. 팩토리 함수를 호출할 때마다 서로 격리된 새 인스턴스가 생성되며, 인스턴스끼리 Wasm 메모리나 내부 상태를 공유하지 않습니다.
+{{< /faq >}}
 
-    ```JavaScript
-    const instance1 = await createModule();
-    const instance2 = await createModule();
-    // instance1과 instance2는 서로 독립된 Wasm 메모리를 가짐
-    ```
+{{< faq summary="`onRuntimeInitialized` 콜백을 등록했는데 호출되지 않는 경우는요?" >}}
+- `onRuntimeInitialized`는 초기화가 진행되는 동안 Module 설정 객체에 이미 포함되어 있어야 호출됩니다. 팩토리 함수를 호출한 뒤, 혹은 Non-MODULARIZE에서 초기화가 이미 끝난 뒤에 뒤늦게 이 속성을 할당하면 그 시점은 이미 지나가버렸기 때문에 콜백이 호출되지 않습니다.
+- MODULARIZE 방식에서는 팩토리 함수가 반환하는 Promise 자체가 런타임 초기화(내부적으로 `onRuntimeInitialized` 호출까지 포함)가 끝난 뒤에야 resolve 됩니다. 따라서 `onRuntimeInitialized`를 따로 등록할 필요 없이, `await createModule()` 다음 줄에 코드를 바로 이어서 작성해도 안전합니다.
 
-  - 앞서 다룬 "두 개의 모듈"은 서로 다른 소스 코드(`module_a.cpp`, `module_b.cpp`)를 각각 하나씩 인스턴스화하는 경우였다면, 이번은 동일한 소스 코드로 만들어진 하나의 모듈을 여러 개 인스턴스화하는 경우라는 점에서 다릅니다. 예를 들어 웹 워커마다 독립된 계산 인스턴스가 필요한 경우에 유용합니다.
+{{< /faq >}}
 
-- `MODULARIZE`로 빌드했는데 브라우저 콘솔에 `Module`이 보이지 않는 이유는요?
-  - `MODULARIZE`는 내부 코드와 심볼을 팩토리 함수의 private scope 안에 캡슐화해서 전역 네임스페이스를 오염시키지 않는 것이 핵심 목적입니다. Non-MODULARIZE 기본 출력은 `Module`뿐 아니라 내부 심볼까지 전역에 노출되지만, `MODULARIZE`는 의도적으로 이를 막기 때문에 콘솔에 `Module`을 입력해도 아무것도 나오지 않는 것이 정상입니다.
-  - 디버깅을 위해 인스턴스에 접근하고 싶다면, 팩토리 함수가 반환한 객체를 원하는 전역 변수에 직접 할당해두면 됩니다.
+{{< faq summary="같은 팩토리 함수를 여러 번 호출하면 어떻게 되나요? 하나의 모듈로 여러 인스턴스를 만들 수 있나요?" >}}
+- 네, 이것이 `MODULARIZE`의 핵심 장점 중 하나입니다. 팩토리 함수를 호출할 때마다 서로 격리된 새 인스턴스가 생성되며, 인스턴스끼리 Wasm 메모리나 내부 상태를 공유하지 않습니다.
 
-    ```JavaScript
-    window.debugModule = await createModule();
-    ```
+  ```JavaScript
+  const instance1 = await createModule();
+  const instance2 = await createModule();
+  // instance1과 instance2는 서로 독립된 Wasm 메모리를 가짐
+  ```
+
+- 앞서 다룬 "두 개의 모듈"은 서로 다른 소스 코드(`module_a.cpp`, `module_b.cpp`)를 각각 하나씩 인스턴스화하는 경우였다면, 이번은 동일한 소스 코드로 만들어진 하나의 모듈을 여러 개 인스턴스화하는 경우라는 점에서 다릅니다. 예를 들어 웹 워커마다 독립된 계산 인스턴스가 필요한 경우에 유용합니다.
+
+{{< /faq >}}
+
+{{< faq summary="`MODULARIZE`로 빌드했는데 브라우저 콘솔에 `Module`이 보이지 않는 이유는요?" >}}
+- `MODULARIZE`는 내부 코드와 심볼을 팩토리 함수의 private scope 안에 캡슐화해서 전역 네임스페이스를 오염시키지 않는 것이 핵심 목적입니다. Non-MODULARIZE 기본 출력은 `Module`뿐 아니라 내부 심볼까지 전역에 노출되지만, `MODULARIZE`는 의도적으로 이를 막기 때문에 콘솔에 `Module`을 입력해도 아무것도 나오지 않는 것이 정상입니다.
+- 디버깅을 위해 인스턴스에 접근하고 싶다면, 팩토리 함수가 반환한 객체를 원하는 전역 변수에 직접 할당해두면 됩니다.
+
+  ```JavaScript
+  window.debugModule = await createModule();
+  ```
+{{< /faq >}}
 
 ## 참고 자료
 

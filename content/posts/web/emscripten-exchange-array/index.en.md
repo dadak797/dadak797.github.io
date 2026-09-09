@@ -403,40 +403,49 @@ Module._free(vPtr);
 
 ## FAQ
 
-- Can you bind every Standard Library data structure?
-  - No. Currently (as of emsdk 6.0.8), the data structures provided are `std::vector` (requires registering the concrete type) and `std::map` (requires registering the concrete type), and dedicated helper functions exist for registering them.
-  - A fixed-size structure like `std::array` can be bound to a JavaScript object via `emscripten::value_array`, and a plain-data struct can be bound to a JavaScript object via `emscripten::value_object`. Since the data of a JavaScript object bound this way is created in JavaScript memory, you don't need to manage its memory with a `delete` function.
+{{< faq summary="Can you bind every Standard Library data structure?" >}}
+- No. Currently (as of emsdk 6.0.8), the data structures provided are `std::vector` (requires registering the concrete type) and `std::map` (requires registering the concrete type), and dedicated helper functions exist for registering them.
+- A fixed-size structure like `std::array` can be bound to a JavaScript object via `emscripten::value_array`, and a plain-data struct can be bound to a JavaScript object via `emscripten::value_object`. Since the data of a JavaScript object bound this way is created in JavaScript memory, you don't need to manage its memory with a `delete` function.
 
-- I want to check whether `strMap` has a certain key — isn't there a function like `m.has(key)`?
-  - No, there isn't. The functions `register_map` actually exposes are only `size`, `get`, `set`, and `keys` — there's no separate function corresponding to C++'s `std::map::find` for checking existence.
-  - `get(key)` is implemented internally using `std::optional`, so it returns `undefined` if the key isn't found. So you can check for existence with `strMap.get(key) !== undefined`.
+{{< /faq >}}
 
-- Can you iterate over a registered `std::vector` with JavaScript's `for...of`?
-  - Yes, you can. `register_vector` also registers the JS iterable protocol based on the `size` and `get` functions, so you can iterate as shown below without handling indices directly.
+{{< faq summary="I want to check whether `strMap` has a certain key — isn't there a function like `m.has(key)`?" >}}
+- No, there isn't. The functions `register_map` actually exposes are only `size`, `get`, `set`, and `keys` — there's no separate function corresponding to C++'s `std::map::find` for checking existence.
+- `get(key)` is implemented internally using `std::optional`, so it returns `undefined` if the key isn't found. So you can check for existence with `strMap.get(key) !== undefined`.
 
-    ```JavaScript
-    for (const item of strVector) {
-      console.log(item);
-    }
-    ```
+{{< /faq >}}
 
-  - Note, however, that an object registered as a `std::map` (via `register_map`) doesn't have this iterable registered, so you need to get the list of keys with `keys()` and iterate as shown in the script example above.
+{{< faq summary="Can you iterate over a registered `std::vector` with JavaScript's `for...of`?" >}}
+- Yes, you can. `register_vector` also registers the JS iterable protocol based on the `size` and `get` functions, so you can iterate as shown below without handling indices directly.
 
-- Can I pass a JavaScript Array directly to a C++ function without converting it to a `Module.StrVector`?
-  - No, you can't. A function like `LoadStrVector`, which takes a `std::vector<std::string>` argument, can only accept the `StrVector` type registered by Embind — a plain JavaScript `Array` isn't a matching type, so passing one directly throws a `BindingError`.
-  - To pass a JavaScript `Array`, you first need to convert it into a `StrVector` instance.
+  ```JavaScript
+  for (const item of strVector) {
+    console.log(item);
+  }
+  ```
 
-    ```JavaScript
-    const jsArray = ["Hello", "WebAssembly"];
-    const strVector = new Module.StrVector();
-    jsArray.forEach((item) => strVector.push_back(item));
-    Module.LoadStrVector(strVector);
-    strVector.delete();
-    ```
+- Note, however, that an object registered as a `std::map` (via `register_map`) doesn't have this iterable registered, so you need to get the list of keys with `keys()` and iterate as shown in the script example above.
 
-- Besides JSON, the Standard Library, and memory views, is there a way to use `emscripten::val`?
-  - Yes, there is. `emscripten::val` is a type that lets C++ dynamically handle an arbitrary JavaScript value (an array, object, function, etc.), without needing to pre-register a type the way you do for `std::vector`/`std::map`, and without the cost of JSON serialization.
-  - However, since its type isn't fixed at compile time, errors are harder to catch ahead of time, and there's overhead each time you cross the JS ↔ C++ boundary to access it. So it's mainly used for the exceptional cases where none of the three approaches above fit well — for example, when you need to hold onto a callback function as-is. See the [val guide in the official Emscripten docs](https://emscripten.org/docs/api_reference/val.h.html) for more.
+{{< /faq >}}
+
+{{< faq summary="Can I pass a JavaScript Array directly to a C++ function without converting it to a `Module.StrVector`?" >}}
+- No, you can't. A function like `LoadStrVector`, which takes a `std::vector<std::string>` argument, can only accept the `StrVector` type registered by Embind — a plain JavaScript `Array` isn't a matching type, so passing one directly throws a `BindingError`.
+- To pass a JavaScript `Array`, you first need to convert it into a `StrVector` instance.
+
+  ```JavaScript
+  const jsArray = ["Hello", "WebAssembly"];
+  const strVector = new Module.StrVector();
+  jsArray.forEach((item) => strVector.push_back(item));
+  Module.LoadStrVector(strVector);
+  strVector.delete();
+  ```
+
+{{< /faq >}}
+
+{{< faq summary="Besides JSON, the Standard Library, and memory views, is there a way to use `emscripten::val`?" >}}
+- Yes, there is. `emscripten::val` is a type that lets C++ dynamically handle an arbitrary JavaScript value (an array, object, function, etc.), without needing to pre-register a type the way you do for `std::vector`/`std::map`, and without the cost of JSON serialization.
+- However, since its type isn't fixed at compile time, errors are harder to catch ahead of time, and there's overhead each time you cross the JS ↔ C++ boundary to access it. So it's mainly used for the exceptional cases where none of the three approaches above fit well — for example, when you need to hold onto a callback function as-is. See the [val guide in the official Emscripten docs](https://emscripten.org/docs/api_reference/val.h.html) for more.
+{{< /faq >}}
 
 ## References
 

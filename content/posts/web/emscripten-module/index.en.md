@@ -421,51 +421,60 @@ Module = {
 
 ## FAQ
 
-- I have C++ code that calls JS via [`EM_ASM`/`EM_JS`](/en/posts/call-js-from-cpp/), and I'm building with `MODULARIZE` and `EXPORT_NAME` — do I need to know the module name when writing the C++ code?
-  - No. Even if you build with `-sMODULARIZE -sEXPORT_NAME=createModuleA`, you can generally just use `Module` inside `EM_JS`/`EM_ASM`.
-  - In a typical `-sMODULARIZE` build, the name you specify with `EXPORT_NAME` (e.g. `createModuleA`) is the name of the factory function used from external JavaScript to create a module instance.
-  - The `Module` used inside `EM_ASM`/`EM_JS`, on the other hand, is a name that refers to the current module instance within the private scope of the generated glue code. Its role is therefore different from `EXPORT_NAME`, and your C++ code doesn't need to know the `EXPORT_NAME` value.
-  - However, in the experimental `-sMODULARIZE=instance` mode, using `Module` inside `EM_JS` or JS library code is currently unsupported. This should be distinguished from the ordinary `MODULARIZE + EXPORT_ES6` combination, which doesn't have this limitation. (As of emsdk 6.0.8)
+{{< faq summary="I have C++ code that calls JS via [`EM_ASM`/`EM_JS`](/en/posts/call-js-from-cpp/), and I'm building with `MODULARIZE` and `EXPORT_NAME` — do I need to know the module name when writing the C++ code?" >}}
+- No. Even if you build with `-sMODULARIZE -sEXPORT_NAME=createModuleA`, you can generally just use `Module` inside `EM_JS`/`EM_ASM`.
+- In a typical `-sMODULARIZE` build, the name you specify with `EXPORT_NAME` (e.g. `createModuleA`) is the name of the factory function used from external JavaScript to create a module instance.
+- The `Module` used inside `EM_ASM`/`EM_JS`, on the other hand, is a name that refers to the current module instance within the private scope of the generated glue code. Its role is therefore different from `EXPORT_NAME`, and your C++ code doesn't need to know the `EXPORT_NAME` value.
+- However, in the experimental `-sMODULARIZE=instance` mode, using `Module` inside `EM_JS` or JS library code is currently unsupported. This should be distinguished from the ordinary `MODULARIZE + EXPORT_ES6` combination, which doesn't have this limitation. (As of emsdk 6.0.8)
 
-- How do you access Wasm's heap memory through the Module?
-  - The Module provides typed array views into Wasm's linear memory. Notable ones include `Module.HEAP8`/`Module.HEAPU8` (8-bit), `Module.HEAP32`/`Module.HEAPU32` (32-bit integers), and `Module.HEAPF64` (64-bit floating point), letting you read and write memory directly at whatever unit size you need.
-  - These views, however, are not exported on the Module by default. Per Emscripten's own documentation, it used to export quite a few runtime elements by default, but all of those have since been removed — anything you need must be added explicitly to `EXPORTED_RUNTIME_METHODS`. For example, you'd need a build option like `-s EXPORTED_RUNTIME_METHODS=HEAP32,getValue,setValue` for the example below to work.
-  - For example, to write and read an integer in a 4-byte buffer allocated with `malloc` in C++, you could do the following.
+{{< /faq >}}
 
-    ```JavaScript
-    const ptr = Module._malloc(4);        // ptr is a byte offset into the Wasm heap
-    Module.HEAP32[ptr / 4] = 42;           // ptr / 4: HEAP32 is a view accessed in 4-byte (32-bit) units, so dividing the byte offset by 4 converts it into an index that says "which 4-byte element is this"
-    console.log(Module.HEAP32[ptr / 4]);   // 42
-    Module._free(ptr);
-    ```
+{{< faq summary="How do you access Wasm's heap memory through the Module?" >}}
+- The Module provides typed array views into Wasm's linear memory. Notable ones include `Module.HEAP8`/`Module.HEAPU8` (8-bit), `Module.HEAP32`/`Module.HEAPU32` (32-bit integers), and `Module.HEAPF64` (64-bit floating point), letting you read and write memory directly at whatever unit size you need.
+- These views, however, are not exported on the Module by default. Per Emscripten's own documentation, it used to export quite a few runtime elements by default, but all of those have since been removed — anything you need must be added explicitly to `EXPORTED_RUNTIME_METHODS`. For example, you'd need a build option like `-s EXPORTED_RUNTIME_METHODS=HEAP32,getValue,setValue` for the example below to work.
+- For example, to write and read an integer in a 4-byte buffer allocated with `malloc` in C++, you could do the following.
 
-    - `Module.HEAP32` is an `Int32Array` that views the entire Wasm memory buffer in 4-byte units. You access it by index like a normal JavaScript array, but that index doesn't mean a byte offset — it means "which 4-byte slot". Since the `ptr` returned by `_malloc` is a byte address, you need to divide it by the element size (4 bytes) to use it as an index into `HEAP32`. (With a 1-byte view like `HEAP8`, there's no need to divide — you can use `ptr` directly as the index.)
+  ```JavaScript
+  const ptr = Module._malloc(4);        // ptr is a byte offset into the Wasm heap
+  Module.HEAP32[ptr / 4] = 42;           // ptr / 4: HEAP32 is a view accessed in 4-byte (32-bit) units, so dividing the byte offset by 4 converts it into an index that says "which 4-byte element is this"
+  console.log(Module.HEAP32[ptr / 4]);   // 42
+  Module._free(ptr);
+  ```
 
-  - Instead of manually dividing the index by the element size, you can use `Module.getValue(ptr, 'i32')` and `Module.setValue(ptr, 42, 'i32')`, which let you skip worrying about the type size. These two functions likewise need to be added to `EXPORTED_RUNTIME_METHODS` before you can use them.
-  - For a hands-on example of exchanging a whole array between C++ and JS with no copying, using a memory view, see [Exchanging Arrays between JavaScript and C++ - Using Memory Views](/en/posts/emscripten-exchange-array/#using-memory-views)
+  - `Module.HEAP32` is an `Int32Array` that views the entire Wasm memory buffer in 4-byte units. You access it by index like a normal JavaScript array, but that index doesn't mean a byte offset — it means "which 4-byte slot". Since the `ptr` returned by `_malloc` is a byte address, you need to divide it by the element size (4 bytes) to use it as an index into `HEAP32`. (With a 1-byte view like `HEAP8`, there's no need to divide — you can use `ptr` directly as the index.)
 
-- What if the `onRuntimeInitialized` callback you registered never gets called?
-  - `onRuntimeInitialized` only gets called if it's already included in the Module configuration object while initialization is in progress. If you assign this property after calling the factory function, or after initialization has already finished in Non-MODULARIZE mode, that moment has already passed, so the callback won't be called.
-  - In the MODULARIZE approach, the Promise returned by the factory function itself doesn't resolve until runtime initialization — which internally includes calling `onRuntimeInitialized` — has finished. So you don't need to register `onRuntimeInitialized` separately; it's safe to just write your code right after `await createModule()`.
+- Instead of manually dividing the index by the element size, you can use `Module.getValue(ptr, 'i32')` and `Module.setValue(ptr, 42, 'i32')`, which let you skip worrying about the type size. These two functions likewise need to be added to `EXPORTED_RUNTIME_METHODS` before you can use them.
+- For a hands-on example of exchanging a whole array between C++ and JS with no copying, using a memory view, see [Exchanging Arrays between JavaScript and C++ - Using Memory Views](/en/posts/emscripten-exchange-array/#using-memory-views)
 
-- What happens if you call the same factory function multiple times? Can one module be instantiated more than once?
-  - Yes — this is one of the key advantages of `MODULARIZE`. Each call to the factory function creates a new, isolated instance, and instances don't share Wasm memory or internal state with each other.
+{{< /faq >}}
 
-    ```JavaScript
-    const instance1 = await createModule();
-    const instance2 = await createModule();
-    // instance1 and instance2 each have their own independent Wasm memory
-    ```
+{{< faq summary="What if the `onRuntimeInitialized` callback you registered never gets called?" >}}
+- `onRuntimeInitialized` only gets called if it's already included in the Module configuration object while initialization is in progress. If you assign this property after calling the factory function, or after initialization has already finished in Non-MODULARIZE mode, that moment has already passed, so the callback won't be called.
+- In the MODULARIZE approach, the Promise returned by the factory function itself doesn't resolve until runtime initialization — which internally includes calling `onRuntimeInitialized` — has finished. So you don't need to register `onRuntimeInitialized` separately; it's safe to just write your code right after `await createModule()`.
 
-  - The "two modules" case covered earlier was about instantiating two different source files (`module_a.cpp`, `module_b.cpp`) once each, whereas this is about instantiating a single module — built from one source — multiple times. This is useful, for example, when each web worker needs its own independent computation instance.
+{{< /faq >}}
 
-- I built with `MODULARIZE`, but I don't see `Module` in the browser console — why?
-  - The whole point of `MODULARIZE` is to encapsulate the internal code and symbols inside the factory function's private scope, so the global namespace doesn't get polluted. The default Non-MODULARIZE output exposes not just `Module` but its internal symbols to the global scope too, whereas `MODULARIZE` deliberately prevents that — so it's expected that typing `Module` into the console shows nothing.
-  - If you want to access an instance for debugging, you can just assign the object returned by the factory function to whatever global variable you like.
+{{< faq summary="What happens if you call the same factory function multiple times? Can one module be instantiated more than once?" >}}
+- Yes — this is one of the key advantages of `MODULARIZE`. Each call to the factory function creates a new, isolated instance, and instances don't share Wasm memory or internal state with each other.
 
-    ```JavaScript
-    window.debugModule = await createModule();
-    ```
+  ```JavaScript
+  const instance1 = await createModule();
+  const instance2 = await createModule();
+  // instance1 and instance2 each have their own independent Wasm memory
+  ```
+
+- The "two modules" case covered earlier was about instantiating two different source files (`module_a.cpp`, `module_b.cpp`) once each, whereas this is about instantiating a single module — built from one source — multiple times. This is useful, for example, when each web worker needs its own independent computation instance.
+
+{{< /faq >}}
+
+{{< faq summary="I built with `MODULARIZE`, but I don't see `Module` in the browser console — why?" >}}
+- The whole point of `MODULARIZE` is to encapsulate the internal code and symbols inside the factory function's private scope, so the global namespace doesn't get polluted. The default Non-MODULARIZE output exposes not just `Module` but its internal symbols to the global scope too, whereas `MODULARIZE` deliberately prevents that — so it's expected that typing `Module` into the console shows nothing.
+- If you want to access an instance for debugging, you can just assign the object returned by the factory function to whatever global variable you like.
+
+  ```JavaScript
+  window.debugModule = await createModule();
+  ```
+{{< /faq >}}
 
 ## References
 

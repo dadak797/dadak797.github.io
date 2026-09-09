@@ -248,67 +248,74 @@ rect.delete();
 
 ## FAQ
 
-- What happens if you use `const char*` as a function argument in Embind?
-  - Say you bind a function that takes a `const char*` argument, like this:
+{{< faq summary="What happens if you use `const char*` as a function argument in Embind?" >}}
+- Say you bind a function that takes a `const char*` argument, like this:
 
-    ```C++
-    void test(const char* str) {}
+  ```C++
+  void test(const char* str) {}
 
-    EMSCRIPTEN_BINDINGS(my_module) {
-      emscripten::function("js_test", &test);
-    }
-    ```
+  EMSCRIPTEN_BINDINGS(my_module) {
+    emscripten::function("js_test", &test);
+  }
+  ```
 
-  - With no policy specified, it gets blocked right at compile time:
+- With no policy specified, it gets blocked right at compile time:
 
-    ```
-    error: static assertion failed due to requirement '!std::is_pointer<const char *>::value':
-    Implicitly binding raw pointers is illegal.  Specify allow_raw_pointer<arg<?>>
-    ```
+  ```
+  error: static assertion failed due to requirement '!std::is_pointer<const char *>::value':
+  Implicitly binding raw pointers is illegal.  Specify allow_raw_pointer<arg<?>>
+  ```
 
-  - Adding `emscripten::allow_raw_pointers()` gets you past compilation, but calling that function from JavaScript then throws a runtime error:
+- Adding `emscripten::allow_raw_pointers()` gets you past compilation, but calling that function from JavaScript then throws a runtime error:
 
-    ```
-    Uncaught UnboundTypeError: Cannot call js_test due to unbound types: PKc
-    ```
+  ```
+  Uncaught UnboundTypeError: Cannot call js_test due to unbound types: PKc
+  ```
 
-    - `PKc` is the (Itanium C++ ABI) mangled type name for `const char*`. `allow_raw_pointers()` only "allows raw pointers to be taken as arguments" — it doesn't register the `PKc` type itself with Embind, so there's no way for the JavaScript side to handle that type, which is why this error occurs
+  - `PKc` is the (Itanium C++ ABI) mangled type name for `const char*`. `allow_raw_pointers()` only "allows raw pointers to be taken as arguments" — it doesn't register the `PKc` type itself with Embind, so there's no way for the JavaScript side to handle that type, which is why this error occurs
 
-  - In other words, even though `allow_raw_pointers()` lets you get past the compiler, the conclusion is the same either way: you can't actually use it. Using `std::string` instead of `const char*` is the only practical solution
-  - For the same reason, you can't pass basic-type pointers like `int*` or `float*` as arguments either. For a workaround that casts the pointer to an integer type instead, see [Exchanging Arrays between JavaScript and C++ - Using Memory Views](/en/posts/emscripten-exchange-array/#using-memory-views)
+- In other words, even though `allow_raw_pointers()` lets you get past the compiler, the conclusion is the same either way: you can't actually use it. Using `std::string` instead of `const char*` is the only practical solution
+- For the same reason, you can't pass basic-type pointers like `int*` or `float*` as arguments either. For a workaround that casts the pointer to an integer type instead, see [Exchanging Arrays between JavaScript and C++ - Using Memory Views](/en/posts/emscripten-exchange-array/#using-memory-views)
 
-- Do `Circle` and `Rectangle` also need to be registered with `emscripten::class_`?
-  - If you only use `createCircle`/`createRectangle` returning a `Shape*`, as in the example above, this works fine without registering them. On the JavaScript side, both instances just look like the `Shape` type, and you can only call functions registered on `Shape`, such as `getArea`/`getType`
-  - If you want to call a function that only exists on `Circle` (e.g. `getRadius`) from JavaScript, or distinguish the actual type with something like `circle instanceof Module.Circle`, you need to register the inheritance relationship by specifying `emscripten::base<Shape>`
+{{< /faq >}}
 
-    ```C++
-    emscripten::class_<Circle, emscripten::base<Shape>>("Circle")
-      .function("getRadius", &Circle::GetRadius);
-    ```
+{{< faq summary="Do `Circle` and `Rectangle` also need to be registered with `emscripten::class_`?" >}}
+- If you only use `createCircle`/`createRectangle` returning a `Shape*`, as in the example above, this works fine without registering them. On the JavaScript side, both instances just look like the `Shape` type, and you can only call functions registered on `Shape`, such as `getArea`/`getType`
+- If you want to call a function that only exists on `Circle` (e.g. `getRadius`) from JavaScript, or distinguish the actual type with something like `circle instanceof Module.Circle`, you need to register the inheritance relationship by specifying `emscripten::base<Shape>`
 
-  - Once registered this way, Embind recognizes that the `Shape*` returned by `createCircle` is actually a `Circle` instance, so `getRadius` can be called from JavaScript as well, and `circle instanceof Module.Circle` becomes `true`
-  - `getRadius` isn't a virtual function, yet it can still be called through a `Shape*` — this differs from C++, where you can't call a non-virtual child function through a base pointer; it's behavior unique to Embind
+  ```C++
+  emscripten::class_<Circle, emscripten::base<Shape>>("Circle")
+    .function("getRadius", &Circle::GetRadius);
+  ```
 
-- Can you construct an instance directly, like `new Module.Circle(5.0)`, without a factory function?
-  - In the current example, `Circle` and `Rectangle` have `private` constructors, so they can't be registered directly with `.constructor<>()`. That's why the `static Create()` factory function is exported separately via `emscripten::function`
-  - If you make the constructor `public`, you can attach `.constructor<double>()` so it can be constructed directly from JavaScript
+- Once registered this way, Embind recognizes that the `Shape*` returned by `createCircle` is actually a `Circle` instance, so `getRadius` can be called from JavaScript as well, and `circle instanceof Module.Circle` becomes `true`
+- `getRadius` isn't a virtual function, yet it can still be called through a `Shape*` — this differs from C++, where you can't call a non-virtual child function through a base pointer; it's behavior unique to Embind
 
-    ```C++
-    emscripten::class_<Circle, emscripten::base<Shape>>("Circle")
-      .constructor<double>()
-      .function("getRadius", &Circle::GetRadius);
-    ```
+{{< /faq >}}
 
-    ```JavaScript
-    const circle = new Module.Circle(5.0);  // constructed directly, without createCircle
-    ```
+{{< faq summary="Can you construct an instance directly, like `new Module.Circle(5.0)`, without a factory function?" >}}
+- In the current example, `Circle` and `Rectangle` have `private` constructors, so they can't be registered directly with `.constructor<>()`. That's why the `static Create()` factory function is exported separately via `emscripten::function`
+- If you make the constructor `public`, you can attach `.constructor<double>()` so it can be constructed directly from JavaScript
 
-  - Note, however, that an abstract class like `Shape` can't have any instances at all, so you can't register `.constructor<>()` on it — only on a derived class
+  ```C++
+  emscripten::class_<Circle, emscripten::base<Shape>>("Circle")
+    .constructor<double>()
+    .function("getRadius", &Circle::GetRadius);
+  ```
 
-- What if `delete()` doesn't free memory even after you call it, or, conversely, you get an error from using an object that's already been deleted?
-  - If a function returns a class instance by value, or takes one as an argument, an extra temporary copy gets created along the way. It's easy to call `delete()` on the instance you actually need while missing this temporary copy
-  - It's also easy to miss a `delete()` call along a code path where an exception causes the function to exit early. This is a problem that RAII naturally solves in C++, but that guarantee doesn't carry over to a JS object handed over through Embind, so you need to explicitly guarantee the `delete()` call with `try`/`finally`
-  - Conversely, if you keep the same instance in multiple variables and call `delete()` through only one of them, calling a method through any of the other variables throws a "using deleted object"-style error. This is actually Embind's safeguard for catching use of an already-freed object — so if you hit this error, treat it as a sign that some reference somewhere already had `delete()` called on it
+  ```JavaScript
+  const circle = new Module.Circle(5.0);  // constructed directly, without createCircle
+  ```
+
+- Note, however, that an abstract class like `Shape` can't have any instances at all, so you can't register `.constructor<>()` on it — only on a derived class
+
+{{< /faq >}}
+
+{{< faq summary="What if `delete()` doesn't free memory even after you call it, or, conversely, you get an error from using an object that's already been deleted?" >}}
+- If a function returns a class instance by value, or takes one as an argument, an extra temporary copy gets created along the way. It's easy to call `delete()` on the instance you actually need while missing this temporary copy
+- It's also easy to miss a `delete()` call along a code path where an exception causes the function to exit early. This is a problem that RAII naturally solves in C++, but that guarantee doesn't carry over to a JS object handed over through Embind, so you need to explicitly guarantee the `delete()` call with `try`/`finally`
+- Conversely, if you keep the same instance in multiple variables and call `delete()` through only one of them, calling a method through any of the other variables throws a "using deleted object"-style error. This is actually Embind's safeguard for catching use of an already-freed object — so if you hit this error, treat it as a sign that some reference somewhere already had `delete()` called on it
+{{< /faq >}}
 
 ## References
 

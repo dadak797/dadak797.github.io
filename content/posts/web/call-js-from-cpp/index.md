@@ -202,19 +202,26 @@ _그림 2. 마우스의 위치가 HTML과 콘솔창에 출력되는 것을 확�
 
 ## FAQ
 
-- `EM_ASM`과 `EM_JS` 중 어느 걸 써야 하나요?
-  - `ccall`과 `cwrap`의 관계처럼 반복 호출이 많은 함수는 `EM_JS`으로 한 번 감싸 쓰는 게 유리하고, 한 번만 호출한다면 `EM_ASM`이 간편함 ([JavaScript에서 C++ 함수 호출 하기](/posts/call-cpp-from-js/#faq))
-- 예제를 보면 그냥 JavaScript에서 처리하면 될 것 같은데, 굳이 C++에서 JavaScript를 호출해서 처리할 필요가 있나요?
-  - 위의 예제에서는 큰 필요성을 못 느낄 수 있습니다. 하지만, 아래와 같은 경우 등에 C++ 코드 내에서 JavaScript 코드를 반드시 사용해야 하는 경우가 발생할 수 있습니다.
-  - C++ 코드에서 파일 브라우저를 열고 파일을 읽어와야 하는 경우 ([WebAssembly에서 File 다루기](/posts/emscripten-file-handling-memfs/))
-  - C++ 코드에서 JavaScript Fetch API를 사용해야 하는 경우 ([WebAssembly에서 Fetch 하기]())
-  - C++을 이용한 그래픽 프로그래밍(WebGL, WebGPU)에서 브라우저의 크기에 따라 프레임 버퍼(Frame buffer)의 크기를 갱신해야 하는 경우
-- `EM_ASM`이나 `EM_JS` 내에서 비동기 함수를 호출하면 어떻게 되나요?
-  - `EM_ASM`이나 `EM_JS` 모두 기본적으로 동기 호출이라 Promise를 그대로 리턴 받을 수 없습니다. 비동기 호출을 위해서는 `EM_ASYNC_JS`를 사용해야 하고, 이 매크로 함수 내부에서는 `await`를 사용하여 값을 리턴받을 수 있습니다. `EM_ASYNC_JS`를 사용하기 위해서는 빌드 옵션으로 `-s ASYNCIFY`를 추가해야 합니다. ([Asyncify](https://emscripten.org/docs/porting/asyncify.html#making-async-web-apis-behave-as-if-they-were-synchronous))
-- `EM_ASM`/`EM_JS`로 작성한 JavaScript 코드는 어떻게 디버깅하나요?
-  - `EM_ASM`/`EM_JS` 안의 코드는 문자열 형태로 그대로 빌드 결과물(예: `index.js`)에 포함될 뿐이라 `em++`이 JavaScript 문법을 검사해주지 않습니다. 오타나 문법 오류가 있어도 컴파일은 성공하고, 브라우저에서 실행하는 순간에야 개발자 도구(DevTools)의 Console 탭에 `Uncaught SyntaxError`와 같은 형태로 드러납니다.
-  - 이때 에러 위치는 `main.cpp`가 아니라 컴파일된 글루 코드 파일(`index.js`)의 특정 줄로 표시되기 때문에, `EM_ASM`/`EM_JS` 블록이 여러 개라면 어느 블록에서 문제가 생겼는지 바로 알기 어렵습니다.
-  - 브레이크포인트가 필요하다면 개발자 도구의 Sources 탭에서 이 글루 코드 파일을 열어 실제 JavaScript 코드 위치에 걸면 됩니다. 다만 최적화 빌드에서는 코드가 압축(minify)되어 찾기 어려우므로, 디버깅 중에는 `-g` 옵션으로 빌드하거나 `console.log`를 임시로 넣어 위치를 확인하는 방법을 추천합니다.
+{{< faq summary="`EM_ASM`과 `EM_JS` 중 어느 걸 써야 하나요?" >}}
+- `ccall`과 `cwrap`의 관계처럼 반복 호출이 많은 함수는 `EM_JS`으로 한 번 감싸 쓰는 게 유리하고, 한 번만 호출한다면 `EM_ASM`이 간편함 ([JavaScript에서 C++ 함수 호출 하기](/posts/call-cpp-from-js/#faq))
+{{< /faq >}}
+
+{{< faq summary="예제를 보면 그냥 JavaScript에서 처리하면 될 것 같은데, 굳이 C++에서 JavaScript를 호출해서 처리할 필요가 있나요?" >}}
+- 위의 예제에서는 큰 필요성을 못 느낄 수 있습니다. 하지만, 아래와 같은 경우 등에 C++ 코드 내에서 JavaScript 코드를 반드시 사용해야 하는 경우가 발생할 수 있습니다.
+- C++ 코드에서 파일 브라우저를 열고 파일을 읽어와야 하는 경우 ([WebAssembly에서 File 다루기](/posts/emscripten-file-handling-memfs/))
+- C++ 코드에서 JavaScript Fetch API를 사용해야 하는 경우 ([WebAssembly에서 Fetch 하기]())
+- C++을 이용한 그래픽 프로그래밍(WebGL, WebGPU)에서 브라우저의 크기에 따라 프레임 버퍼(Frame buffer)의 크기를 갱신해야 하는 경우
+{{< /faq >}}
+
+{{< faq summary="`EM_ASM`이나 `EM_JS` 내에서 비동기 함수를 호출하면 어떻게 되나요?" >}}
+- `EM_ASM`이나 `EM_JS` 모두 기본적으로 동기 호출이라 Promise를 그대로 리턴 받을 수 없습니다. 비동기 호출을 위해서는 `EM_ASYNC_JS`를 사용해야 하고, 이 매크로 함수 내부에서는 `await`를 사용하여 값을 리턴받을 수 있습니다. `EM_ASYNC_JS`를 사용하기 위해서는 빌드 옵션으로 `-s ASYNCIFY`를 추가해야 합니다. ([Asyncify](https://emscripten.org/docs/porting/asyncify.html#making-async-web-apis-behave-as-if-they-were-synchronous))
+{{< /faq >}}
+
+{{< faq summary="`EM_ASM`/`EM_JS`로 작성한 JavaScript 코드는 어떻게 디버깅하나요?" >}}
+- `EM_ASM`/`EM_JS` 안의 코드는 문자열 형태로 그대로 빌드 결과물(예: `index.js`)에 포함될 뿐이라 `em++`이 JavaScript 문법을 검사해주지 않습니다. 오타나 문법 오류가 있어도 컴파일은 성공하고, 브라우저에서 실행하는 순간에야 개발자 도구(DevTools)의 Console 탭에 `Uncaught SyntaxError`와 같은 형태로 드러납니다.
+- 이때 에러 위치는 `main.cpp`가 아니라 컴파일된 글루 코드 파일(`index.js`)의 특정 줄로 표시되기 때문에, `EM_ASM`/`EM_JS` 블록이 여러 개라면 어느 블록에서 문제가 생겼는지 바로 알기 어렵습니다.
+- 브레이크포인트가 필요하다면 개발자 도구의 Sources 탭에서 이 글루 코드 파일을 열어 실제 JavaScript 코드 위치에 걸면 됩니다. 다만 최적화 빌드에서는 코드가 압축(minify)되어 찾기 어려우므로, 디버깅 중에는 `-g` 옵션으로 빌드하거나 `console.log`를 임시로 넣어 위치를 확인하는 방법을 추천합니다.
+{{< /faq >}}
 
 ## 참고 자료
 

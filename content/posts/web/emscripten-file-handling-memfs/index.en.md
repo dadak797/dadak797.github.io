@@ -475,80 +475,91 @@ _Figure 5. The merged.obj file, produced by merging the two files (Cube.obj, Iso
 
 ## FAQ
 
-- Why delete the OBJ files from MEMFS as soon as they've been read?
-  - Since every file in MEMFS lives in memory, leaving files around after you're done with them keeps occupying that much memory for as long as the browser tab stays open. The difference gets larger especially when a user repeatedly uploads large OBJ files.
-  - In `LoadObjFiles`, `fs::remove` is called right after `tinyobj::LoadObj`, regardless of success or failure. Even files that fail to parse are deleted, because leaving a failed file in MEMFS serves no purpose — it can't be reused, and it would just get in the way if the user tries to upload a file with the same name again.
-  - The newly created `/merged.obj` file used for downloading is cleaned up for the same reason, with `fs::remove` right after triggering the download inside `EM_ASM`.
+{{< faq summary="Why delete the OBJ files from MEMFS as soon as they've been read?" >}}
+- Since every file in MEMFS lives in memory, leaving files around after you're done with them keeps occupying that much memory for as long as the browser tab stays open. The difference gets larger especially when a user repeatedly uploads large OBJ files.
+- In `LoadObjFiles`, `fs::remove` is called right after `tinyobj::LoadObj`, regardless of success or failure. Even files that fail to parse are deleted, because leaving a failed file in MEMFS serves no purpose — it can't be reused, and it would just get in the way if the user tries to upload a file with the same name again.
+- The newly created `/merged.obj` file used for downloading is cleaned up for the same reason, with `fs::remove` right after triggering the download inside `EM_ASM`.
 
-- Compared to reading a file natively, does writing a file into MEMFS really require one extra data copy?
-  - Yes, that's correct. For security reasons, browsers don't let JS access the original file directly, and MEMFS is a separate storage area on the JS side, distinct from Wasm linear memory — so an extra copy is needed to bridge the two.
+{{< /faq >}}
 
-    | Step                                                                | Native (`std::ifstream`)                                | Browser + Emscripten MEMFS                                                                                       |
-    | ------------------------------------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-    | 1                                                                   | Disk → kernel page cache                                | Disk → read by the browser into a JS `ArrayBuffer` (`file.arrayBuffer()`)                                        |
-    | 2 (extra copy, Emscripten only)                                     | —                                                       | JS heap (`ArrayBuffer`) → copied into MEMFS's internal storage (`Module.FS.writeFile`)                           |
-    | 3                                                                   | Kernel buffer → copied into the app's buffer (`read()`) | MEMFS storage → copied into Wasm linear memory (via the `std::ifstream` that `tinyobj::LoadObj` uses internally) |
-    | Number of copies needed before the app code actually reads the data | 1                                                       | 2                                                                                                                |
+{{< faq summary="Compared to reading a file natively, does writing a file into MEMFS really require one extra data copy?" >}}
+- Yes, that's correct. For security reasons, browsers don't let JS access the original file directly, and MEMFS is a separate storage area on the JS side, distinct from Wasm linear memory — so an extra copy is needed to bridge the two.
 
-  - Step 1 (disk → temporary storage) and step 3 (temporary storage → the buffer the app actually reads from) are copies that exist on both the native and browser sides regardless — they're needed either way. Step 2 (`Module.FS.writeFile`), on the other hand, is a copy that's only needed to move the data into the separate virtual file system that is MEMFS, and it has no counterpart on the native side.
+  | Step                                                                | Native (`std::ifstream`)                                | Browser + Emscripten MEMFS                                                                                       |
+  | ------------------------------------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+  | 1                                                                   | Disk → kernel page cache                                | Disk → read by the browser into a JS `ArrayBuffer` (`file.arrayBuffer()`)                                        |
+  | 2 (extra copy, Emscripten only)                                     | —                                                       | JS heap (`ArrayBuffer`) → copied into MEMFS's internal storage (`Module.FS.writeFile`)                           |
+  | 3                                                                   | Kernel buffer → copied into the app's buffer (`read()`) | MEMFS storage → copied into Wasm linear memory (via the `std::ifstream` that `tinyobj::LoadObj` uses internally) |
+  | Number of copies needed before the app code actually reads the data | 1                                                       | 2                                                                                                                |
 
-- How can I also read the `.mtl` (material) file that accompanies an OBJ?
-  - `tinyobj::LoadObj` tries to read not just the `.obj` file but also the `.mtl` file it references. By default it looks for the `.mtl` file in the same directory as the `.obj` file, and you can also specify a separate search path via the last argument (`mtl_search_path`).
-  - In other words, to use this feature on top of MEMFS, you need to write the related `.mtl` file to the same path with `Module.FS.writeFile`, not just the `.obj` file. Since the current `index.html` simply writes whatever files the user selects, you'd need to either instruct users to also select the `.mtl` file, or widen the `input` element's `accept` attribute to `.obj,.mtl`.
-  - The current code passes `materials` as the fourth argument to `LoadObj`, but discards what's read instead of storing it in `ObjFile`. To actually make use of the material info, you'd need to add a `std::vector<tinyobj::material_t> materials` field to `ObjFile` and also record the `mtllib`/`usemtl` directives when merging.
+- Step 1 (disk → temporary storage) and step 3 (temporary storage → the buffer the app actually reads from) are copies that exist on both the native and browser sides regardless — they're needed either way. Step 2 (`Module.FS.writeFile`), on the other hand, is a copy that's only needed to move the data into the separate virtual file system that is MEMFS, and it has no counterpart on the native side.
 
-- What happens if you forget `-s EXPORTED_RUNTIME_METHODS="['FS']"` when building?
-  - Emscripten minimizes the symbols it exposes on the `Module` object by default, so if you don't explicitly export the `FS` namespace, `Module.FS` will be `undefined` on the JS side.
-  - As a result, the call to `Module.FS.writeFile(...)` in `index.html` throws a runtime error like `Cannot read properties of undefined (reading 'writeFile')`.
-  - Code on the C++ side that accesses the file system (`tinyobj::LoadObj`, `std::ofstream`, etc.) still works fine regardless of this option. The problem is that JS then has no way to pass the user's files into MEMFS.
+{{< /faq >}}
 
-- What happens if you select a file with the same name twice (e.g. two different `Cube.obj` files from different folders)?
-  - `Module.FS.writeFile(file.name, typedArray)` uses only the file name as the MEMFS path, so if you select multiple files with the same name, the one written later overwrites the one written earlier.
-  - The `filenames` array then ends up containing the same name twice, but since `LoadObjFiles` already deleted that file from MEMFS while reading the first entry, the file can't be found when reading the second entry, so `err` gets filled in and it's skipped.
-  - To avoid this, you could write each uploaded file with a unique prefix (e.g. `${index}_${file.name}`), or add logic to notify the user when there are files with overlapping names.
+{{< faq summary="How can I also read the `.mtl` (material) file that accompanies an OBJ?" >}}
+- `tinyobj::LoadObj` tries to read not just the `.obj` file but also the `.mtl` file it references. By default it looks for the `.mtl` file in the same directory as the `.obj` file, and you can also specify a separate search path via the last argument (`mtl_search_path`).
+- In other words, to use this feature on top of MEMFS, you need to write the related `.mtl` file to the same path with `Module.FS.writeFile`, not just the `.obj` file. Since the current `index.html` simply writes whatever files the user selects, you'd need to either instruct users to also select the `.mtl` file, or widen the `input` element's `accept` attribute to `.obj,.mtl`.
+- The current code passes `materials` as the fourth argument to `LoadObj`, but discards what's read instead of storing it in `ObjFile`. To actually make use of the material info, you'd need to add a `std::vector<tinyobj::material_t> materials` field to `ObjFile` and also record the `mtllib`/`usemtl` directives when merging.
 
-- How would I move the download logic out of C++'s `EM_ASM` and into JS code instead?
-  - You can change `MergeAndDownloadObjFiles` to just return the path of the merged file (`MERGED_OBJ_FILE`) instead of handling the download itself.
+{{< /faq >}}
 
-    ```C++
-    std::optional<std::string> MergeAndDownloadObjFiles() {
-      // ... merging logic stays the same ...
+{{< faq summary="What happens if you forget `-s EXPORTED_RUNTIME_METHODS=\"['FS']\"` when building?" >}}
+- Emscripten minimizes the symbols it exposes on the `Module` object by default, so if you don't explicitly export the `FS` namespace, `Module.FS` will be `undefined` on the JS side.
+- As a result, the call to `Module.FS.writeFile(...)` in `index.html` throws a runtime error like `Cannot read properties of undefined (reading 'writeFile')`.
+- Code on the C++ side that accesses the file system (`tinyobj::LoadObj`, `std::ofstream`, etc.) still works fine regardless of this option. The problem is that JS then has no way to pass the user's files into MEMFS.
 
-      output.close();
-      if (!output) {
-        std::cerr << "Failed to write merged OBJ file." << std::endl;
-        fs::remove(MERGED_OBJ_FILE);
-        return std::nullopt;
-      }
+{{< /faq >}}
 
-      return std::string(MERGED_OBJ_FILE);  // Return just the path instead of downloading
+{{< faq summary="What happens if you select a file with the same name twice (e.g. two different `Cube.obj` files from different folders)?" >}}
+- `Module.FS.writeFile(file.name, typedArray)` uses only the file name as the MEMFS path, so if you select multiple files with the same name, the one written later overwrites the one written earlier.
+- The `filenames` array then ends up containing the same name twice, but since `LoadObjFiles` already deleted that file from MEMFS while reading the first entry, the file can't be found when reading the second entry, so `err` gets filled in and it's skipped.
+- To avoid this, you could write each uploaded file with a unique prefix (e.g. `${index}_${file.name}`), or add logic to notify the user when there are files with overlapping names.
+
+{{< /faq >}}
+
+{{< faq summary="How would I move the download logic out of C++'s `EM_ASM` and into JS code instead?" >}}
+- You can change `MergeAndDownloadObjFiles` to just return the path of the merged file (`MERGED_OBJ_FILE`) instead of handling the download itself.
+
+  ```C++
+  std::optional<std::string> MergeAndDownloadObjFiles() {
+    // ... merging logic stays the same ...
+
+    output.close();
+    if (!output) {
+      std::cerr << "Failed to write merged OBJ file." << std::endl;
+      fs::remove(MERGED_OBJ_FILE);
+      return std::nullopt;
     }
-    ```
 
-  - On the JS side, you can get the same result by calling `Module.FS.readFile` with that path, creating a `Blob`, downloading it, and then cleaning up MEMFS.
+    return std::string(MERGED_OBJ_FILE);  // Return just the path instead of downloading
+  }
+  ```
 
-    ```JavaScript
-    document.getElementById("download-obj").addEventListener("click", () => {
-      const path = Module.mergeAndDownloadObjFiles();
-      if (path === undefined) {
-        console.error("Failed to merge OBJ files.");
-        return;
-      }
+- On the JS side, you can get the same result by calling `Module.FS.readFile` with that path, creating a `Blob`, downloading it, and then cleaning up MEMFS.
 
-      const data = Module.FS.readFile(path);
-      const blob = new Blob([data], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
+  ```JavaScript
+  document.getElementById("download-obj").addEventListener("click", () => {
+    const path = Module.mergeAndDownloadObjFiles();
+    if (path === undefined) {
+      console.error("Failed to merge OBJ files.");
+      return;
+    }
 
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = "merged.obj";
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
+    const data = Module.FS.readFile(path);
+    const blob = new Blob([data], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
 
-      setTimeout(() => URL.revokeObjectURL(url), 0);
-      Module.FS.unlink(path);  // Clean up MEMFS after downloading
-    });
-    ```
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = "merged.obj";
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
 
-  - This gives you the same user experience without using `EM_ASM`, and lets the C++ code focus solely on the file-merging logic. Note that you'd also need to change the button in `index.html` from `onclick="Module.mergeAndDownloadObjFiles()"` to the event-listener approach shown above.
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+    Module.FS.unlink(path);  // Clean up MEMFS after downloading
+  });
+  ```
+
+- This gives you the same user experience without using `EM_ASM`, and lets the C++ code focus solely on the file-merging logic. Note that you'd also need to change the button in `index.html` from `onclick="Module.mergeAndDownloadObjFiles()"` to the event-listener approach shown above.
+{{< /faq >}}

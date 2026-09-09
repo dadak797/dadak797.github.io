@@ -195,23 +195,29 @@ em++ hello_c_api.cpp -o index.html --shell-file template.html -s EXPORTED_FUNCTI
 
 ## FAQ
 
-- Is there a way to use C++ classes from JavaScript?
-  - Using Embind ([Using C++ Classes from JavaScript](/en/posts/embind/)) or the WebIDL Binder, you can export a C++ class and create instances of it from JavaScript.
-- Which should I use, `ccall` or `cwrap`?
-  - For a function you'll call repeatedly, it's better to wrap it once with `cwrap`; for a one-off call, `ccall` is more convenient.
-- I get an error like "ccall is not defined".
-  - Check whether you forgot to add it to `EXPORTED_RUNTIME_METHODS`.
-- How do I receive a string that a C++ function returns?
-  - If you set `ccall`'s return type to `string`, it internally calls `UTF8ToString` to automatically convert the returned C++ string into a JavaScript string.
-  - In the example below, the string lives in read-only data and stays valid until the program exits — but a string built as a local variable on the stack is destroyed the moment the function returns, so returning just a pointer (`const char*`) to one can cause a crash. Note that this is the same problem you'd run into in native C++.
+{{< faq summary="Is there a way to use C++ classes from JavaScript?" >}}
+- Using Embind ([Using C++ Classes from JavaScript](/en/posts/embind/)) or the WebIDL Binder, you can export a C++ class and create instances of it from JavaScript.
+{{< /faq >}}
+
+{{< faq summary="Which should I use, `ccall` or `cwrap`?" >}}
+- For a function you'll call repeatedly, it's better to wrap it once with `cwrap`; for a one-off call, `ccall` is more convenient.
+{{< /faq >}}
+
+{{< faq summary="I get an error like \"ccall is not defined\"." >}}
+- Check whether you forgot to add it to `EXPORTED_RUNTIME_METHODS`.
+{{< /faq >}}
+
+{{< faq summary="How do I receive a string that a C++ function returns?" >}}
+- If you set `ccall`'s return type to `string`, it internally calls `UTF8ToString` to automatically convert the returned C++ string into a JavaScript string.
+- In the example below, the string lives in read-only data and stays valid until the program exits — but a string built as a local variable on the stack is destroyed the moment the function returns, so returning just a pointer (`const char*`) to one can cause a crash. Note that this is the same problem you'd run into in native C++.
 
 ```C++
 // C++
 extern "C" {
-  EMSCRIPTEN_KEEPALIVE
-  const char* get_hello() {
-    return "Hello from C++!";
-  }
+EMSCRIPTEN_KEEPALIVE
+const char* get_hello() {
+  return "Hello from C++!";
+}
 }
 
 // JavaScript
@@ -219,9 +225,12 @@ const helloStr = Module.ccall('get_hello', 'string', [], []);
 console.log(helloStr);  // prints "Hello from C++!"
 ```
 
-- Can a function that returns a struct or class be called with `ccall`?
-  - `ccall`/`cwrap` return types only support `number`, `string`, `boolean`, and `array`, so they can't represent a struct or class made up of multiple fields. Worse, a function that returns a struct by value gets compiled into an entirely different form at the C/Wasm level — one that receives the result through a hidden pointer argument — so calling it with no arguments can even crash.
-  - Embind handles this kind of marshaling for you automatically. See [Using C++ Classes from JavaScript](/en/posts/embind/).
+{{< /faq >}}
+
+{{< faq summary="Can a function that returns a struct or class be called with `ccall`?" >}}
+- `ccall`/`cwrap` return types only support `number`, `string`, `boolean`, and `array`, so they can't represent a struct or class made up of multiple fields. Worse, a function that returns a struct by value gets compiled into an entirely different form at the C/Wasm level — one that receives the result through a hidden pointer argument — so calling it with no arguments can even crash.
+- Embind handles this kind of marshaling for you automatically. See [Using C++ Classes from JavaScript](/en/posts/embind/).
+{{< /faq >}}
 
 ## References
 

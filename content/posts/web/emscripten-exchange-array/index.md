@@ -403,40 +403,49 @@ Module._free(vPtr);
 
 ## FAQ
 
-- Standard Library의 모든 데이터 구조를 binding 할 수 있나요?
-  - 아니요. 현재(emsdk 6.0.8 기준) 제공되는 데이터 구조는 std::vector(구체 타입 등록 필요), std::map(구체 타입 등록 필요)이고 등록을 위한 전용 helper 함수가 존재합니다.
-  - `std::array`와 같은 고정 크기의 데이터는 `emscripten::value_array`를 통해 JavaScript 객체로 binding 할 수 있고, 데이터만 담겨있는 구조체의 경우에는 `emscripten::value_object`를 통해 JavaScript 객체로 binding 할 수 있습니다. 이렇게 바인딩된 JavaScript 객체의 데이터는 JavaScript 메모리에 생성되기 때문에 `delete` 함수를 통해 메모리 관리를 하지 않아도 됩니다.
+{{< faq summary="Standard Library의 모든 데이터 구조를 binding 할 수 있나요?" >}}
+- 아니요. 현재(emsdk 6.0.8 기준) 제공되는 데이터 구조는 std::vector(구체 타입 등록 필요), std::map(구체 타입 등록 필요)이고 등록을 위한 전용 helper 함수가 존재합니다.
+- `std::array`와 같은 고정 크기의 데이터는 `emscripten::value_array`를 통해 JavaScript 객체로 binding 할 수 있고, 데이터만 담겨있는 구조체의 경우에는 `emscripten::value_object`를 통해 JavaScript 객체로 binding 할 수 있습니다. 이렇게 바인딩된 JavaScript 객체의 데이터는 JavaScript 메모리에 생성되기 때문에 `delete` 함수를 통해 메모리 관리를 하지 않아도 됩니다.
 
-- `strMap`에 특정 key가 있는지 확인하고 싶은데, `m.has(key)` 같은 함수는 없나요?
-  - 없습니다. `register_map`이 실제로 노출하는 함수는 `size`, `get`, `set`, `keys` 뿐이고, C++의 `std::map::find`에 대응하는 존재 여부 확인 함수는 별도로 제공되지 않습니다.
-  - `get(key)`는 내부적으로 `std::optional`을 이용해 구현되어 있어서, 찾는 key가 없으면 `undefined`를 리턴합니다. 따라서 `strMap.get(key) !== undefined`로 존재 여부를 확인하면 됩니다.
+{{< /faq >}}
 
-- 등록한 `std::vector`를 JavaScript의 `for...of` 문으로 순회할 수 있나요?
-  - 네, 가능합니다. `register_vector`는 `size`와 `get` 함수를 기반으로 하는 JS iterable 프로토콜을 함께 등록하기 때문에, 인덱스를 직접 다루지 않고도 아래처럼 순회할 수 있습니다.
+{{< faq summary="`strMap`에 특정 key가 있는지 확인하고 싶은데, `m.has(key)` 같은 함수는 없나요?" >}}
+- 없습니다. `register_map`이 실제로 노출하는 함수는 `size`, `get`, `set`, `keys` 뿐이고, C++의 `std::map::find`에 대응하는 존재 여부 확인 함수는 별도로 제공되지 않습니다.
+- `get(key)`는 내부적으로 `std::optional`을 이용해 구현되어 있어서, 찾는 key가 없으면 `undefined`를 리턴합니다. 따라서 `strMap.get(key) !== undefined`로 존재 여부를 확인하면 됩니다.
 
-    ```JavaScript
-    for (const item of strVector) {
-      console.log(item);
-    }
-    ```
+{{< /faq >}}
 
-  - 단, `std::map`으로 등록한 객체(`register_map`)에는 이런 iterable이 등록되어 있지 않으므로, 위 예제 스크립트처럼 `keys()`로 key 목록을 받아 순회해야 합니다.
+{{< faq summary="등록한 `std::vector`를 JavaScript의 `for...of` 문으로 순회할 수 있나요?" >}}
+- 네, 가능합니다. `register_vector`는 `size`와 `get` 함수를 기반으로 하는 JS iterable 프로토콜을 함께 등록하기 때문에, 인덱스를 직접 다루지 않고도 아래처럼 순회할 수 있습니다.
 
-- JavaScript의 배열(Array)을 `Module.StrVector`로 변환하지 않고 C++ 함수에 바로 전달할 수는 없나요?
-  - 안 됩니다. `LoadStrVector`처럼 `std::vector<std::string>`을 인자로 받는 함수는 Embind가 등록한 `StrVector` 타입만 받을 수 있고, 일반 JavaScript `Array`는 대응되는 타입이 아니라서 그대로 전달하면 `BindingError`가 발생합니다.
-  - JavaScript `Array`를 넘기려면 먼저 `StrVector` 인스턴스로 변환해야 합니다.
+  ```JavaScript
+  for (const item of strVector) {
+    console.log(item);
+  }
+  ```
 
-    ```JavaScript
-    const jsArray = ["Hello", "WebAssembly"];
-    const strVector = new Module.StrVector();
-    jsArray.forEach((item) => strVector.push_back(item));
-    Module.LoadStrVector(strVector);
-    strVector.delete();
-    ```
+- 단, `std::map`으로 등록한 객체(`register_map`)에는 이런 iterable이 등록되어 있지 않으므로, 위 예제 스크립트처럼 `keys()`로 key 목록을 받아 순회해야 합니다.
 
-- JSON, Standard Library, Memory View 말고 `emscripten::val`을 쓰는 방법은 없나요?
-  - 있습니다. `emscripten::val`은 임의의 JavaScript 값(배열, 객체, 함수 등)을 C++에서 동적으로 다룰 수 있게 해주는 타입으로, `std::vector`/`std::map`처럼 타입별로 미리 등록하지 않아도 되고 JSON 직렬화 비용도 없습니다.
-  - 다만 컴파일 타임에 타입이 고정되지 않아 오류를 미리 잡기 어렵고, 접근할 때마다 JS ↔ C++ 경계를 오가는 오버헤드가 있어서, 위 세 가지 방법 중 하나가 적합하지 않은 예외적인 경우(예: 콜백 함수를 그대로 저장해야 하는 경우)에 주로 사용됩니다. 자세한 내용은 [Emscripten 공식 문서의 val 가이드](https://emscripten.org/docs/api_reference/val.h.html)를 참고하세요.
+{{< /faq >}}
+
+{{< faq summary="JavaScript의 배열(Array)을 `Module.StrVector`로 변환하지 않고 C++ 함수에 바로 전달할 수는 없나요?" >}}
+- 안 됩니다. `LoadStrVector`처럼 `std::vector<std::string>`을 인자로 받는 함수는 Embind가 등록한 `StrVector` 타입만 받을 수 있고, 일반 JavaScript `Array`는 대응되는 타입이 아니라서 그대로 전달하면 `BindingError`가 발생합니다.
+- JavaScript `Array`를 넘기려면 먼저 `StrVector` 인스턴스로 변환해야 합니다.
+
+  ```JavaScript
+  const jsArray = ["Hello", "WebAssembly"];
+  const strVector = new Module.StrVector();
+  jsArray.forEach((item) => strVector.push_back(item));
+  Module.LoadStrVector(strVector);
+  strVector.delete();
+  ```
+
+{{< /faq >}}
+
+{{< faq summary="JSON, Standard Library, Memory View 말고 `emscripten::val`을 쓰는 방법은 없나요?" >}}
+- 있습니다. `emscripten::val`은 임의의 JavaScript 값(배열, 객체, 함수 등)을 C++에서 동적으로 다룰 수 있게 해주는 타입으로, `std::vector`/`std::map`처럼 타입별로 미리 등록하지 않아도 되고 JSON 직렬화 비용도 없습니다.
+- 다만 컴파일 타임에 타입이 고정되지 않아 오류를 미리 잡기 어렵고, 접근할 때마다 JS ↔ C++ 경계를 오가는 오버헤드가 있어서, 위 세 가지 방법 중 하나가 적합하지 않은 예외적인 경우(예: 콜백 함수를 그대로 저장해야 하는 경우)에 주로 사용됩니다. 자세한 내용은 [Emscripten 공식 문서의 val 가이드](https://emscripten.org/docs/api_reference/val.h.html)를 참고하세요.
+{{< /faq >}}
 
 ## 참고 자료
 

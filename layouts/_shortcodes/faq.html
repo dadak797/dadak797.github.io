@@ -1,0 +1,10 @@
+{{- $summary := .Get "summary" -}}
+{{- if not $summary -}}
+  {{- errorf "missing value for FAQ summary: %s" .Position -}}
+{{- end -}}
+<details class="faq-item">
+  <summary class="faq-question">{{ $summary | .Page.RenderString (dict "display" "inline") }}</summary>
+  <div class="faq-answer">
+    {{- .Inner | .Page.RenderString (dict "display" "block") -}}
+  </div>
+</details>

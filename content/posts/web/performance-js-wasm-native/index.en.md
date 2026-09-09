@@ -485,15 +485,22 @@ g++-15 -O3 -std=c++17 main.cpp prime_number.cpp -o native_prime_gcc
 
 ## FAQ
 
-- Does this mean there is no performance difference between Wasm and native code?
-  - This example needs to pass only one integer argument to invoke the Wasm function, so there is very little interaction across the `JavaScript glue code` ↔ `Wasm` boundary. This structure allows Wasm to perform close to its best case.
-  - In other workloads, frequent interaction across the `user code` ↔ `JavaScript glue code` ↔ `Wasm` boundary adds call overhead. Passing large values such as strings or arrays can also require copying data into Wasm linear memory and copying results back out, which may prevent Wasm from reaching native performance. See [Calling C++ Functions from JavaScript - ccall, cwrap](/en/posts/call-cpp-from-js/) for a detailed walkthrough of this process.
-  - Wasm code should therefore be designed to minimize interaction with JavaScript glue code when performance matters.
-- Why is JavaScript only about 1.5 times slower?
-  - JavaScript is often expected to be several times slower, but this example consists of type-stable integer arithmetic and simple loops. V8's JIT compiler can optimize this into machine code that performs relatively close to native code. The warm-up runs give the JIT time to apply these optimizations.
-  - The gap could be larger for code involving many objects, strings, or dynamically changing types.
-- What kinds of workloads benefit from Wasm?
-  - Wasm is most effective for CPU-intensive computation that rarely crosses the JavaScript–Wasm boundary, such as cryptography, image and video processing, physics simulation, and compression. It can be less effective for workloads that frequently cross the boundary, such as DOM manipulation or repeated string processing.
-- Why was loading time excluded?
-  - Wasm has startup costs for downloading, compiling, and instantiating the `.wasm` file. For a short task that runs only once, these costs can make the overall operation slower than pure JavaScript.
-  - This article focuses on computation rather than startup cost, so all three implementations measure only the execution time of the core computation. When deciding whether to use Wasm in a real service, startup costs should be considered as well.
+{{< faq summary="Does this mean there is no performance difference between Wasm and native code?" >}}
+- This example needs to pass only one integer argument to invoke the Wasm function, so there is very little interaction across the `JavaScript glue code` ↔ `Wasm` boundary. This structure allows Wasm to perform close to its best case.
+- In other workloads, frequent interaction across the `user code` ↔ `JavaScript glue code` ↔ `Wasm` boundary adds call overhead. Passing large values such as strings or arrays can also require copying data into Wasm linear memory and copying results back out, which may prevent Wasm from reaching native performance. See [Calling C++ Functions from JavaScript - ccall, cwrap](/en/posts/call-cpp-from-js/) for a detailed walkthrough of this process.
+- Wasm code should therefore be designed to minimize interaction with JavaScript glue code when performance matters.
+{{< /faq >}}
+
+{{< faq summary="Why is JavaScript only about 1.5 times slower?" >}}
+- JavaScript is often expected to be several times slower, but this example consists of type-stable integer arithmetic and simple loops. V8's JIT compiler can optimize this into machine code that performs relatively close to native code. The warm-up runs give the JIT time to apply these optimizations.
+- The gap could be larger for code involving many objects, strings, or dynamically changing types.
+{{< /faq >}}
+
+{{< faq summary="What kinds of workloads benefit from Wasm?" >}}
+- Wasm is most effective for CPU-intensive computation that rarely crosses the JavaScript–Wasm boundary, such as cryptography, image and video processing, physics simulation, and compression. It can be less effective for workloads that frequently cross the boundary, such as DOM manipulation or repeated string processing.
+{{< /faq >}}
+
+{{< faq summary="Why was loading time excluded?" >}}
+- Wasm has startup costs for downloading, compiling, and instantiating the `.wasm` file. For a short task that runs only once, these costs can make the overall operation slower than pure JavaScript.
+- This article focuses on computation rather than startup cost, so all three implementations measure only the execution time of the core computation. When deciding whether to use Wasm in a real service, startup costs should be considered as well.
+{{< /faq >}}

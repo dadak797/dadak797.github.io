@@ -361,20 +361,31 @@ _Figure 2. Running the second example's wasm code in the browser._
 
 ## FAQ
 
-- Does building the same source on different operating systems produce the same output?
-  - Yes. The `.wasm`, `.js`, and `.html` files are all identical regardless of the platform.
-- What needs to match in order to build a pre-built library together with my own code into WebAssembly?
-  - **Build target**: the library must also be built with Emscripten. Native binaries will not link.
-  - **Emscripten version**: keep the library and your code on the same version. If they differ, the build may fail or a runtime error may occur.
-  - **Compile options**: options that affect the ABI, such as `-pthread` (multithreading) or `-sMEMORY64=1` (memory model), must be the same on both sides. If they differ, the build fails.
-- Why can't I just double-click `index.html` and open it directly in the browser?
-  - When opened via `file://`, the browser's security policy prevents it from loading the `.wasm`. That is why we start a local server with `python -m http.server` and connect via `localhost`.
-- I get a "command not found" error for `emsdk`.
-  - Environment variables reset in a new terminal. Run `emsdk_env` (Windows) or `source ./emsdk_env.sh` (macOS/Linux) each time, or register them permanently in your PATH. On macOS/Linux, when `emsdk` is not on your PATH, you need to prefix it with `./`, as in `./emsdk`.
-- If the `.js` is all I need, why is a separate `.wasm` also generated?
-  - The actual compiled code lives in the `.wasm`, while the `.js` is the glue code that loads and initializes that `.wasm` and connects it to JS. Both the browser and Node.js run the `.wasm` through the `.js`, so the two files must be in the same location.
-- `node main.js` works, so why does the browser need a server?
-  - Node.js can read the `.wasm` directly from the file system, but the browser cannot fetch a `.wasm` over `file://`. That is why a local server is only needed for browser execution.
+{{< faq summary="Does building the same source on different operating systems produce the same output?" >}}
+- Yes. The `.wasm`, `.js`, and `.html` files are all identical regardless of the platform.
+{{< /faq >}}
+
+{{< faq summary="What needs to match in order to build a pre-built library together with my own code into WebAssembly?" >}}
+- **Build target**: the library must also be built with Emscripten. Native binaries will not link.
+- **Emscripten version**: keep the library and your code on the same version. If they differ, the build may fail or a runtime error may occur.
+- **Compile options**: options that affect the ABI, such as `-pthread` (multithreading) or `-sMEMORY64=1` (memory model), must be the same on both sides. If they differ, the build fails.
+{{< /faq >}}
+
+{{< faq summary="Why can't I just double-click `index.html` and open it directly in the browser?" >}}
+- When opened via `file://`, the browser's security policy prevents it from loading the `.wasm`. That is why we start a local server with `python -m http.server` and connect via `localhost`.
+{{< /faq >}}
+
+{{< faq summary="I get a \"command not found\" error for `emsdk`." >}}
+- Environment variables reset in a new terminal. Run `emsdk_env` (Windows) or `source ./emsdk_env.sh` (macOS/Linux) each time, or register them permanently in your PATH. On macOS/Linux, when `emsdk` is not on your PATH, you need to prefix it with `./`, as in `./emsdk`.
+{{< /faq >}}
+
+{{< faq summary="If the `.js` is all I need, why is a separate `.wasm` also generated?" >}}
+- The actual compiled code lives in the `.wasm`, while the `.js` is the glue code that loads and initializes that `.wasm` and connects it to JS. Both the browser and Node.js run the `.wasm` through the `.js`, so the two files must be in the same location.
+{{< /faq >}}
+
+{{< faq summary="`node main.js` works, so why does the browser need a server?" >}}
+- Node.js can read the `.wasm` directly from the file system, but the browser cannot fetch a `.wasm` over `file://`. That is why a local server is only needed for browser execution.
+{{< /faq >}}
 
 ## References
 

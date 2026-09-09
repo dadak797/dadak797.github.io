@@ -1,0 +1,28 @@
+.post-content .faq-item {
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--entry);
+}
+
+.post-content .faq-question {
+  padding: 0.8rem 1rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.post-content .faq-item[open] .faq-question {
+  border-bottom: 1px solid var(--border);
+}
+
+.post-content .faq-answer {
+  padding: 0.8rem 1rem;
+}
+
+.post-content .faq-answer > :first-child {
+  margin-top: 0;
+}
+
+.post-content .faq-answer > :last-child {
+  margin-bottom: 0;
+}

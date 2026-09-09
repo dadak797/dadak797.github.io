@@ -202,19 +202,26 @@ _Figure 2. You can see the mouse position being printed to both the HTML and the
 
 ## FAQ
 
-- Which should I use, `EM_ASM` or `EM_JS`?
-  - As with `ccall` and `cwrap`, for a function you'll call repeatedly it's better to wrap it once with `EM_JS`; for a one-off call, `EM_ASM` is more convenient ([Calling C++ Functions from JavaScript](/en/posts/call-cpp-from-js/#faq))
-- Looking at the examples, it seems like this could just be handled in JavaScript — is it really necessary to call JavaScript from C++?
-  - You might not feel a strong need to in the examples above. But there are cases where you're required to use JavaScript code from within C++, such as the following:
-  - When your C++ code needs to open a file browser dialog and read a file ([Working with Files in WebAssembly](/en/posts/emscripten-file-handling-memfs/))
-  - When your C++ code needs to use the JavaScript Fetch API ([Fetching Data in WebAssembly]())
-  - When doing graphics programming in C++ (WebGL, WebGPU) and you need to resize the frame buffer according to the browser's size
-- What happens if I call an asynchronous function from `EM_ASM` or `EM_JS`?
-  - Both `EM_ASM` and `EM_JS` are synchronous calls by default, so you can't get a Promise back directly. To make an asynchronous call, you need to use `EM_ASYNC_JS`, inside which you can use `await` to receive a value. To use `EM_ASYNC_JS`, you also need to add the `-s ASYNCIFY` build option. ([Asyncify](https://emscripten.org/docs/porting/asyncify.html#making-async-web-apis-behave-as-if-they-were-synchronous))
-- How do I debug JavaScript code written with `EM_ASM`/`EM_JS`?
-  - The code inside `EM_ASM`/`EM_JS` is carried over as-is, as a string, into the build output (e.g., `index.js`) — `em++` doesn't check its JavaScript syntax. So even if there's a typo or syntax error, the build still succeeds, and the problem only shows up once you run it in the browser, as something like an `Uncaught SyntaxError` in the DevTools Console tab.
-  - The error location points to a specific line in the compiled glue code file (`index.js`), not to `main.cpp`, so if you have multiple `EM_ASM`/`EM_JS` blocks it can be hard to tell right away which one caused the problem.
-  - If you need to set a breakpoint, open that glue code file in the DevTools Sources tab and set it at the actual JavaScript code location. In an optimized build, though, the code will be minified and hard to find, so while debugging it's worth building with the `-g` option or temporarily adding a `console.log` to pinpoint the location.
+{{< faq summary="Which should I use, `EM_ASM` or `EM_JS`?" >}}
+- As with `ccall` and `cwrap`, for a function you'll call repeatedly it's better to wrap it once with `EM_JS`; for a one-off call, `EM_ASM` is more convenient ([Calling C++ Functions from JavaScript](/en/posts/call-cpp-from-js/#faq))
+{{< /faq >}}
+
+{{< faq summary="Looking at the examples, it seems like this could just be handled in JavaScript — is it really necessary to call JavaScript from C++?" >}}
+- You might not feel a strong need to in the examples above. But there are cases where you're required to use JavaScript code from within C++, such as the following:
+- When your C++ code needs to open a file browser dialog and read a file ([Working with Files in WebAssembly](/en/posts/emscripten-file-handling-memfs/))
+- When your C++ code needs to use the JavaScript Fetch API ([Fetching Data in WebAssembly]())
+- When doing graphics programming in C++ (WebGL, WebGPU) and you need to resize the frame buffer according to the browser's size
+{{< /faq >}}
+
+{{< faq summary="What happens if I call an asynchronous function from `EM_ASM` or `EM_JS`?" >}}
+- Both `EM_ASM` and `EM_JS` are synchronous calls by default, so you can't get a Promise back directly. To make an asynchronous call, you need to use `EM_ASYNC_JS`, inside which you can use `await` to receive a value. To use `EM_ASYNC_JS`, you also need to add the `-s ASYNCIFY` build option. ([Asyncify](https://emscripten.org/docs/porting/asyncify.html#making-async-web-apis-behave-as-if-they-were-synchronous))
+{{< /faq >}}
+
+{{< faq summary="How do I debug JavaScript code written with `EM_ASM`/`EM_JS`?" >}}
+- The code inside `EM_ASM`/`EM_JS` is carried over as-is, as a string, into the build output (e.g., `index.js`) — `em++` doesn't check its JavaScript syntax. So even if there's a typo or syntax error, the build still succeeds, and the problem only shows up once you run it in the browser, as something like an `Uncaught SyntaxError` in the DevTools Console tab.
+- The error location points to a specific line in the compiled glue code file (`index.js`), not to `main.cpp`, so if you have multiple `EM_ASM`/`EM_JS` blocks it can be hard to tell right away which one caused the problem.
+- If you need to set a breakpoint, open that glue code file in the DevTools Sources tab and set it at the actual JavaScript code location. In an optimized build, though, the code will be minified and hard to find, so while debugging it's worth building with the `-g` option or temporarily adding a `console.log` to pinpoint the location.
+{{< /faq >}}
 
 ## References
 
