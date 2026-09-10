@@ -476,6 +476,7 @@ _그림 5. 두 파일(Cube.obj, Isosphere.obj)을 병합한 merged.obj 파일을
 ## FAQ
 
 {{< faq summary="OBJ 파일을 다 읽자마자 MEMFS에서 지우는 이유는 무엇인가요?" >}}
+
 - MEMFS는 모든 파일이 메모리에 존재하기 때문에, 사용이 끝난 파일을 계속 남겨두면 브라우저 탭이 열려 있는 동안 그만큼의 메모리를 계속 점유하게 됩니다. 특히 사용자가 큰 OBJ 파일을 여러 번 반복해서 업로드하는 경우라면 차이가 더 커집니다.
 - `LoadObjFiles`에서는 `tinyobj::LoadObj` 호출 직후, 성공/실패 여부와 관계없이 바로 `fs::remove`를 호출합니다. 파싱에 실패한 파일까지 지우는 이유는, 실패한 파일을 MEMFS에 남겨두어 봐야 재사용할 수 없고 이후 같은 이름으로 다시 업로드할 때 방해만 되기 때문입니다.
 - 다운로드용으로 새로 만든 `/merged.obj` 역시 같은 이유로 `EM_ASM`에서 다운로드를 트리거한 직후 `fs::remove`로 정리합니다.
@@ -483,6 +484,7 @@ _그림 5. 두 파일(Cube.obj, Isosphere.obj)을 병합한 merged.obj 파일을
 {{< /faq >}}
 
 {{< faq summary="네이티브에서 파일을 읽을 때와 비교하면, MEMFS에 파일을 쓰는 과정에서 데이터 복사가 한 번 더 필요한 게 맞나요?" >}}
+
 - 네, 맞습니다. 브라우저는 보안상 JS가 파일 원본에 직접 접근하지 못하게 하고, MEMFS는 Wasm 선형 메모리와는 분리된 별도의 JS 쪽 저장소이기 때문에, 그 사이를 잇기 위한 복사가 하나 더 필요합니다.
 
   | 단계                                                | 네이티브 (`std::ifstream`)            | 브라우저 + Emscripten MEMFS                                                                       |
@@ -497,6 +499,7 @@ _그림 5. 두 파일(Cube.obj, Isosphere.obj)을 병합한 merged.obj 파일을
 {{< /faq >}}
 
 {{< faq summary="OBJ와 함께 있는 `.mtl`(material) 파일도 읽게 하려면 어떻게 해야 하나요?" >}}
+
 - `tinyobj::LoadObj`는 `.obj` 파일뿐 아니라 그 안에서 참조하는 `.mtl` 파일도 함께 읽으려고 시도합니다. 기본적으로는 `.obj`와 같은 디렉토리에서 `.mtl` 파일을 찾고, 마지막 인자(`mtl_search_path`)로 별도의 검색 경로를 지정할 수도 있습니다.
 - 즉, MEMFS 위에서 이 기능을 쓰려면 `.obj` 파일만이 아니라 관련된 `.mtl` 파일도 미리 `Module.FS.writeFile`로 같은 경로에 써 두어야 합니다. 지금 `index.html`은 사용자가 선택한 파일을 모두 그대로 쓰기만 하므로, `.mtl`을 함께 선택하도록 안내하거나 `input`의 `accept` 속성을 `.obj,.mtl`로 넓혀야 합니다.
 - 현재 코드는 `LoadObj`의 네 번째 인자로 `materials`를 넘기고 있지만, 읽어들인 내용을 `ObjFile`에 저장하지 않고 그냥 버리고 있습니다. 실제로 material 정보를 활용하려면 `ObjFile`에 `std::vector<tinyobj::material_t> materials` 필드를 추가하고, 병합 시 `mtllib`/`usemtl` 지시자도 함께 기록해야 합니다.
@@ -504,6 +507,7 @@ _그림 5. 두 파일(Cube.obj, Isosphere.obj)을 병합한 merged.obj 파일을
 {{< /faq >}}
 
 {{< faq summary="빌드할 때 `-s EXPORTED_RUNTIME_METHODS=\"['FS']\"`를 빠뜨리면 어떻게 되나요?" >}}
+
 - Emscripten은 기본적으로 `Module` 객체에 노출하는 심볼을 최소화하기 때문에, `FS` 네임스페이스를 명시적으로 export하지 않으면 JS 쪽에서 `Module.FS`가 `undefined`가 됩니다.
 - 결과적으로 `index.html`의 `Module.FS.writeFile(...)` 호출에서 `Cannot read properties of undefined (reading 'writeFile')` 같은 런타임 에러가 발생합니다.
 - 반면 C++ 쪽에서 파일 시스템에 접근하는 코드(`tinyobj::LoadObj`, `std::ofstream` 등)는 이 옵션과 무관하게 그대로 동작합니다. 문제는 JS에서 사용자 파일을 MEMFS로 전달할 방법이 없어진다는 점입니다.
@@ -511,6 +515,7 @@ _그림 5. 두 파일(Cube.obj, Isosphere.obj)을 병합한 merged.obj 파일을
 {{< /faq >}}
 
 {{< faq summary="같은 이름의 파일을 두 번 선택하면 어떻게 되나요? (예: 서로 다른 폴더에 있는 두 개의 `Cube.obj`)" >}}
+
 - `Module.FS.writeFile(file.name, typedArray)`는 파일명만을 MEMFS 경로로 사용하므로, 이름이 같은 파일을 여러 개 선택하면 나중에 쓴 파일이 먼저 쓴 파일을 덮어씁니다.
 - 이후 `filenames` 배열에는 같은 이름이 두 번 들어가지만, `LoadObjFiles`가 첫 번째 항목을 읽으면서 해당 파일을 MEMFS에서 이미 삭제했기 때문에 두 번째 항목을 읽을 때는 파일을 찾지 못해 `err`가 채워지고 건너뛰게 됩니다.
 - 이 문제를 피하려면 업로드 시점에 파일마다 고유한 접두사를 붙여 쓰거나(예: `${index}_${file.name}`), 이름이 겹치는 파일이 있을 때 사용자에게 알려주는 처리가 필요합니다.
@@ -518,6 +523,7 @@ _그림 5. 두 파일(Cube.obj, Isosphere.obj)을 병합한 merged.obj 파일을
 {{< /faq >}}
 
 {{< faq summary="다운로드 로직을 C++ 안의 `EM_ASM` 대신 JS 쪽 코드로 옮기려면 어떻게 하나요?" >}}
+
 - `MergeAndDownloadObjFiles`가 직접 다운로드까지 처리하는 대신, 병합된 파일의 경로(`MERGED_OBJ_FILE`)만 리턴하도록 바꾸면 됩니다.
 
   ```C++
@@ -562,4 +568,4 @@ _그림 5. 두 파일(Cube.obj, Isosphere.obj)을 병합한 merged.obj 파일을
   ```
 
 - 이렇게 바꾸면 `EM_ASM`을 쓰지 않고도 동일한 사용자 경험을 얻을 수 있고, C++ 코드는 파일 병합 로직에만 집중할 수 있습니다. 다만 `index.html`의 버튼도 `onclick="Module.mergeAndDownloadObjFiles()"` 대신 위 이벤트 리스너 방식으로 함께 바꿔야 합니다.
-{{< /faq >}}
+  {{< /faq >}}
