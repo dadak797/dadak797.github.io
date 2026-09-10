@@ -1,7 +1,7 @@
 ---
 title: 테스트용 웹 서버 구축하기 - Node.js & Express
 date: 2026-09-10
-draft: true
+draft: false
 description: Node.js와 Express를 이용하여 요청마다 서버 로직을 실행할 수 있는 백엔드를 간단히 구축하고, 각 API가 요청한 동작을 잘 수행하는지 테스트한다.
 categories:
   - Web
@@ -45,12 +45,12 @@ npm init
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
 }
 ```
 
@@ -86,18 +86,18 @@ npm install --save-dev nodemon
   // ...
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
   },
   // ...
   "type": "module",
   "dependencies": {
     "cors": "^2.8.6",
     "express": "^5.2.1",
-    "multer": "^2.3.0"
+    "multer": "^2.3.0",
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
-  }
+    "nodemon": "^3.1.14",
+  },
 }
 ```
 
@@ -128,10 +128,6 @@ const port = 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// JSON POST 요청 처리 설정
-// 요청의 Content-Type이 application/json 일 때 동작함
-app.use(express.json());
-
 // CORS 설정
 // 다른 origin에서 실행되는 클라이언트의 API 호출 허용
 // 예: http://localhost:8080 → http://localhost:3000
@@ -141,6 +137,10 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
+
+// JSON POST 요청 처리 설정
+// 요청의 Content-Type이 application/json 일 때 동작함
+app.use(express.json());
 
 // 업로드된 파일 저장 위치 설정
 // 기본적으로 파일명은 무작위로 생성되지만, 여기서는 파일이름에 타임스탬프를 붙여 고유하게 만듦
@@ -235,6 +235,7 @@ app.listen(port, () => {
 ## 서버 테스트 하기
 
 ![web-server-test](images/web-server-test.png)
+_그림 1. 5가지의 API에 대한 테스트_
 
 - `npm run dev`로 서버를 구동시킨 후 아래의 스크립트를 순차적으로 실행
 
@@ -291,32 +292,38 @@ curl http://localhost:3000/models/Cube.obj
 ## FAQ
 
 {{< faq summary="Express 기반 Node.js 서버를 Flask, Django나 Spring Boot와 비교하면 어떤 장점이 있나요?" >}}
+
 - Node.js는 JavaScript 런타임이고 Express는 그 위에서 동작하는 웹 프레임워크입니다. 따라서 정확히는 Express 기반 Node.js 서버와 Flask, Django, Spring Boot를 비교해야 합니다.
 - 프론트엔드와 백엔드를 모두 JavaScript 또는 TypeScript로 작성할 수 있어 언어와 데이터 모델을 공유하기 쉽고, npm 생태계의 패키지를 활용할 수 있다는 장점이 있습니다. 또한 비동기 I/O 중심의 요청을 효율적으로 처리하므로 API 서버나 실시간 통신 서버를 가볍게 구축하기 좋습니다.
 - 반면 인증, ORM, 관리 도구처럼 다양한 기능이 기본으로 필요한 대규모 애플리케이션에서는 Django나 Spring Boot가 더 편리할 수 있습니다. CPU 연산이 많은 작업은 Node.js의 이벤트 루프를 막을 수 있으므로, 서버의 목적과 팀의 기술 스택에 따라 선택하는 것이 좋습니다.
-{{< /faq >}}
+  {{< /faq >}}
 
 {{< faq summary="`package.json`의 `type`을 `module`로 설정한 이유는 무엇인가요?" >}}
+
 - 이 글의 `server.js`는 `import`와 `import.meta.url`을 사용하는 ES module 방식으로 작성되어 있습니다. `.js` 파일을 ES module로 해석하려면 가장 가까운 `package.json`에 `"type": "module"`을 지정해야 합니다.
 - `"type": "commonjs"`를 유지하려면 `import` 대신 `require()`와 `module.exports`를 사용해야 합니다. 또는 파일 확장자를 `.mjs`로 변경하면 `type` 설정과 관계없이 ES module로 실행할 수 있습니다.
-{{< /faq >}}
+  {{< /faq >}}
 
 {{< faq summary="같은 `localhost`인데도 CORS 설정이 필요한가요?" >}}
+
 - Origin은 프로토콜, 호스트, 포트의 조합으로 구분됩니다. 따라서 클라이언트가 실행되는 `http://localhost:8080`과 API 서버의 `http://localhost:3000`은 포트가 달라 서로 다른 origin입니다. 브라우저에서 두 서버 간 요청의 응답을 읽으려면 API 서버가 적절한 CORS 응답 헤더를 보내야 합니다.
 - CORS는 서버 요청 자체를 차단하는 인증 기능이 아니라 브라우저가 응답을 읽을 수 있는지를 제어하는 정책입니다. `curl`, Postman이나 다른 서버는 CORS를 강제하지 않으므로, 이 도구들에서 요청이 성공했다고 해서 브라우저에서도 CORS 설정이 올바르다는 의미는 아닙니다.
-{{< /faq >}}
+  {{< /faq >}}
 
 {{< faq summary="파일 업로드 중 `ENOENT` 또는 `Unexpected field` 오류가 발생하는 이유는 무엇인가요?" >}}
+
 - 이 예제처럼 Multer의 `destination`을 함수로 지정한 경우에는 `uploads` 폴더를 미리 생성해야 합니다. 폴더가 없다면 `mkdir uploads`로 생성한 뒤 서버를 실행합니다.
 - `upload.single("uploadFile")`의 인자는 서버가 받을 파일 필드의 이름입니다. 클라이언트에서도 `curl -F "uploadFile=@Cube.obj"`처럼 동일한 이름을 사용해야 하며, 다른 이름을 사용하면 `Unexpected field` 오류가 발생할 수 있습니다.
-{{< /faq >}}
+  {{< /faq >}}
 
 {{< faq summary="`res.sendFile()`은 파일 전체를 메모리에 올린 뒤 전송하나요?" >}}
+
 - 아니요. `res.sendFile()`은 파일을 스트리밍 방식으로 전송하므로, `fs.readFile()`처럼 파일 전체를 먼저 메모리에 올릴 필요가 없습니다. 따라서 비교적 큰 파일을 다운로드하는 API에도 사용할 수 있습니다.
 - 이 예제에서는 `root` 옵션을 `models` 폴더로 지정하여 요청한 경로가 해당 폴더 밖으로 벗어나지 못하도록 제한합니다.
-{{< /faq >}}
+  {{< /faq >}}
 
 {{< faq summary="이 예제 서버를 실제 서비스에 그대로 사용해도 되나요?" >}}
+
 - 이 서버는 Express의 기본 기능을 확인하기 위한 테스트용 예제입니다. 특히 `/auth`는 `Authorization` 헤더가 있는지만 확인할 뿐, 토큰의 유효성을 검증하거나 사용자의 권한을 확인하지 않습니다.
 - 실제 서비스에서는 인증과 권한 검사, 요청 데이터 검증, 업로드 파일의 크기와 형식 제한, 안전한 파일명 생성, HTTPS, 요청 제한, 로깅 및 공통 오류 처리 등을 추가해야 합니다.
-{{< /faq >}}
+  {{< /faq >}}

@@ -1,7 +1,7 @@
 ---
 title: Building a Test Web Server with Node.js and Express
 date: 2026-09-10
-draft: true
+draft: false
 description: Build a simple backend with Node.js and Express that runs server-side logic for each request, then verify that each API behaves as expected.
 categories:
   - Web
@@ -45,12 +45,12 @@ npm init
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
 }
 ```
 
@@ -86,18 +86,18 @@ npm install --save-dev nodemon
   // ...
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
   },
   // ...
   "type": "module",
   "dependencies": {
     "cors": "^2.8.6",
     "express": "^5.2.1",
-    "multer": "^2.3.0"
+    "multer": "^2.3.0",
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
-  }
+    "nodemon": "^3.1.14",
+  },
 }
 ```
 
@@ -128,10 +128,6 @@ const port = 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Parse JSON POST requests.
-// This middleware runs when the request Content-Type is application/json.
-app.use(express.json());
-
 // Configure CORS.
 // Allow API calls from a client running on a different origin.
 // Example: http://localhost:8080 → http://localhost:3000
@@ -141,6 +137,10 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
+
+// Parse JSON POST requests.
+// This middleware runs when the request Content-Type is application/json.
+app.use(express.json());
 
 // Configure where uploaded files are stored.
 // Multer normally generates random filenames. Here, a timestamp is appended
@@ -236,6 +236,7 @@ app.listen(port, () => {
 ## Testing the Server
 
 ![Web server test](images/web-server-test.png)
+_Figure 1. Testing the five APIs._
 
 - Start the server with `npm run dev`, then run the following commands in order.
 
@@ -292,32 +293,38 @@ curl http://localhost:3000/models/Cube.obj
 ## FAQ
 
 {{< faq summary="What are the advantages of an Express-based Node.js server compared with Flask, Django, or Spring Boot?" >}}
+
 - Node.js is a JavaScript runtime, while Express is a web framework that runs on it. Strictly speaking, an Express-based Node.js server should therefore be compared with Flask, Django, or Spring Boot.
 - Using JavaScript or TypeScript for both the frontend and backend makes it easier to share a language and data models, and it provides access to the npm ecosystem. Node.js also handles asynchronous, I/O-heavy requests efficiently, making it a lightweight choice for API and real-time communication servers.
 - Django or Spring Boot may be more convenient for large applications that need built-in features such as authentication, an ORM, and administrative tools. CPU-intensive work can block the Node.js event loop, so the best choice depends on the server's purpose and the team's technology stack.
-{{< /faq >}}
+  {{< /faq >}}
 
 {{< faq summary="Why is `type` set to `module` in `package.json`?" >}}
+
 - The `server.js` file in this post uses ES module features such as `import` and `import.meta.url`. To interpret a `.js` file as an ES module, set `"type": "module"` in the nearest `package.json`.
 - To keep `"type": "commonjs"`, replace `import` with `require()` and `module.exports`. Alternatively, use the `.mjs` extension to run the file as an ES module regardless of the `type` setting.
-{{< /faq >}}
+  {{< /faq >}}
 
 {{< faq summary="Why is CORS required even when both servers use `localhost`?" >}}
+
 - An origin is defined by the combination of protocol, host, and port. The client at `http://localhost:8080` and the API server at `http://localhost:3000` therefore have different origins because their ports differ. The API server must send the appropriate CORS response headers for a browser to expose the response to the client.
 - CORS is not an authentication mechanism that blocks the request at the server. It is a browser policy that controls whether client-side code can read the response. Tools such as `curl` and Postman, as well as other servers, do not enforce CORS, so a successful request from one of them does not prove that the browser CORS configuration is correct.
-{{< /faq >}}
+  {{< /faq >}}
 
 {{< faq summary="Why does a file upload fail with `ENOENT` or `Unexpected field`?" >}}
+
 - When Multer's `destination` is provided as a function, as it is in this example, the `uploads` directory must already exist. If it does not, create it with `mkdir uploads` before starting the server.
 - The argument passed to `upload.single("uploadFile")` is the file field name expected by the server. The client must use the same name, as in `curl -F "uploadFile=@Cube.obj"`. Using a different name can cause an `Unexpected field` error.
-{{< /faq >}}
+  {{< /faq >}}
 
 {{< faq summary="Does `res.sendFile()` load the entire file into memory before sending it?" >}}
+
 - No. `res.sendFile()` streams the file, so it does not need to load the entire file into memory first as `fs.readFile()` does. This makes it suitable for APIs that download relatively large files.
 - In this example, the `root` option is set to the `models` directory, preventing the requested path from escaping that directory.
-{{< /faq >}}
+  {{< /faq >}}
 
 {{< faq summary="Can this example server be used as-is in production?" >}}
+
 - This server is a test example intended to demonstrate basic Express features. In particular, `/auth` only checks whether an `Authorization` header exists; it does not validate the token or check the user's permissions.
 - A production service also needs authentication and authorization, request validation, upload size and file type limits, safe filename generation, HTTPS, rate limiting, logging, and centralized error handling.
-{{< /faq >}}
+  {{< /faq >}}
