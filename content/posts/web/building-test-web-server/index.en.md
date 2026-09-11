@@ -113,7 +113,7 @@ npm install --save-dev nodemon
 
 ## Server Configuration and Project Structure
 
-- Before starting the server, create an `uploads` directory in the project root for uploaded files, and create an `index.html` file to use when testing the APIs in the browser's developer tools.
+- Create an `index.html` file to use when testing the APIs in the browser's developer tools. The server automatically creates the `uploads` directory for uploaded files the first time it starts.
 
 ```javascript
 // server.js
@@ -122,12 +122,16 @@ import cors from "cors";
 import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
 
 const app = express();
 const port = 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const uploadDir = path.join(__dirname, "uploads");
+
+// Create the upload directory when the server starts.
+fs.mkdirSync(uploadDir, { recursive: true });
 
 // Configure CORS.
 // Allow a separate client running at http://localhost:8080
@@ -240,6 +244,7 @@ app.listen(port, () => {
 
 - Configure JSON POST request parsing and CORS.
 - `cors`: Middleware that sets CORS response headers so a browser can read an API response from another origin. The developer-tools tests in this post run on the same origin and do not require CORS. This configuration is included for a separate client running at `http://localhost:8080` that calls the API at `http://localhost:3000`.
+- Automatically create the `uploads` directory when the server starts if it does not already exist.
 - Configure file uploads with Multer.
 - Create controllers for five basic API tests using GET and POST requests:
   1. `/hello`: Returns a basic JSON object.
@@ -411,9 +416,8 @@ _Figure 5. GET file download result—the first request downloads `test_file.txt
 - The `cors` middleware in this example is configured for a separate client running at `http://localhost:8080` that calls the API at `http://localhost:3000`. An origin is defined by the combination of protocol, host, and port, so these two addresses have different origins because their ports differ. CORS is not an authentication mechanism; it is a browser policy that controls whether code can read a response from another origin.
   {{< /faq >}}
 
-{{< faq summary="Why does a file upload fail with `ENOENT` or `Unexpected field`?" >}}
+{{< faq summary="Why does a file upload fail with `Unexpected field`?" >}}
 
-- When Multer's `destination` is provided as a function, as it is in this example, the `uploads` directory must already exist. If it does not, create it with `mkdir uploads` before starting the server.
 - The argument passed to `upload.single("uploadFile")` is the file field name expected by the server. The client must use the same name, as in `formData.append("uploadFile", mockFile)`. Using a different name can cause an `Unexpected field` error.
   {{< /faq >}}
 

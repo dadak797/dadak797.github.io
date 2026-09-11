@@ -113,7 +113,7 @@ npm install --save-dev nodemon
 
 ## 서버 설정 파일과 프로젝트 구조
 
-- 서버를 실행하기 전에 프로젝트 루트에 업로드 파일을 저장할 `uploads` 폴더를 만들고, 개발자 도구에서 API를 테스트할 때 사용할 `index.html`을 작성함
+- 개발자 도구에서 API를 테스트할 때 사용할 `index.html`을 작성함. 업로드 파일을 저장할 `uploads` 폴더는 서버를 처음 실행할 때 자동으로 생성됨
 
 ```JavaScript
 // server.js
@@ -122,12 +122,16 @@ import cors from "cors";
 import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
 
 const app = express();
 const port = 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const uploadDir = path.join(__dirname, "uploads");
+
+// 서버 시작 시 업로드 폴더 생성
+fs.mkdirSync(uploadDir, { recursive: true });
 
 // CORS 설정
 // http://localhost:8080에서 실행되는 별도의 클라이언트가
@@ -239,6 +243,7 @@ app.listen(port, () => {
 
 - JSON POST 요청과 CORS를 설정
 - `cors`: 브라우저에서 다른 origin의 API 응답을 읽을 수 있도록 CORS 응답 헤더를 설정하는 미들웨어. 이 글의 개발자 도구 테스트는 같은 origin에서 실행되므로 CORS가 필요하지 않지만, `http://localhost:8080`에서 실행되는 별도의 클라이언트가 `http://localhost:3000`의 API를 호출하는 상황을 위해 설정함
+- 서버 시작 시 `uploads` 폴더가 없으면 자동으로 생성
 - multer를 이용한 파일 업로드 설정
 - GET, POST를 조합한 총 5가지의 API와 컨트롤러를 생성하여 기본적인 테스트를 수행
   1.  `/hello`: 기본적인 JSON 객체를 응답하는 API
@@ -410,9 +415,8 @@ _그림 5. GET 파일 다운로드 요청 결과 - 첫 번째 요청에서는 `t
 - 현재 `cors` 미들웨어는 `http://localhost:8080`에서 실행되는 별도의 클라이언트가 `http://localhost:3000`의 API를 호출하는 경우를 위해 설정했습니다. Origin은 프로토콜, 호스트, 포트의 조합으로 구분되므로 두 주소는 포트가 달라 서로 다른 origin입니다. CORS는 인증 기능이 아니라 브라우저가 다른 origin의 응답을 읽을 수 있는지를 제어하는 정책입니다.
   {{< /faq >}}
 
-{{< faq summary="파일 업로드 중 `ENOENT` 또는 `Unexpected field` 오류가 발생하는 이유는 무엇인가요?" >}}
+{{< faq summary="파일 업로드 중 `Unexpected field` 오류가 발생하는 이유는 무엇인가요?" >}}
 
-- 이 예제처럼 Multer의 `destination`을 함수로 지정한 경우에는 `uploads` 폴더를 미리 생성해야 합니다. 폴더가 없다면 `mkdir uploads`로 생성한 뒤 서버를 실행합니다.
 - `upload.single("uploadFile")`의 인자는 서버가 받을 파일 필드의 이름입니다. 클라이언트에서도 `formData.append("uploadFile", mockFile)`처럼 같은 이름을 사용해야 하며, 다른 이름을 사용하면 `Unexpected field` 오류가 발생할 수 있습니다.
   {{< /faq >}}
 
