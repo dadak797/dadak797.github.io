@@ -111,9 +111,9 @@ npm install --save-dev nodemon
 > [!NOTE]
 > `package.json`은 설치 가능한 패키지의 버전 범위를 기록하고, `package-lock.json`은 실제로 설치된 전체 의존성 트리의 정확한 버전을 기록한다. 동일한 의존성 환경을 재현하려면 두 파일을 저장소에 함께 커밋하고 `npm ci`를 사용한다. `npm ci`는 두 파일의 내용이 일치하지 않으면 오류를 발생시키며, 설치 과정에서 `package.json`이나 `package-lock.json`을 수정하지 않는다.
 
-## 기본 서버 설정 파일
+## 서버 설정 파일과 프로젝트 구조
 
-- 서버를 실행하기 전에 프로젝트 루트에 업로드 파일을 저장할 `uploads` 폴더를 만들고, 다운로드 테스트에 사용할 `Cube.obj` 파일을 `models` 폴더에 넣어둠
+- 서버를 실행하기 전에 프로젝트 루트에 업로드 파일을 저장할 `uploads` 폴더를 만들고, 개발자 도구에서 API를 테스트할 때 사용할 `index.html`을 작성함
 
 ```JavaScript
 // server.js
@@ -127,10 +127,11 @@ const app = express();
 const port = 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const uploadDir = path.join(__dirname, "uploads");
 
 // CORS 설정
-// 다른 origin에서 실행되는 클라이언트의 API 호출 허용
-// 예: http://localhost:8080 → http://localhost:3000
+// http://localhost:8080에서 실행되는 별도의 클라이언트가
+// http://localhost:3000의 API를 호출할 수 있도록 허용
 app.use(
   cors({
     origin: "http://localhost:8080",
@@ -146,7 +147,7 @@ app.use(express.json());
 // 기본적으로 파일명은 무작위로 생성되지만, 여기서는 파일이름에 타임스탬프를 붙여 고유하게 만듦
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/");
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
@@ -155,6 +156,11 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage });
+
+// Home
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
 
 // API 생성
 // 1. GET 요청
@@ -200,21 +206,19 @@ app.post("/upload", upload.single("uploadFile"), (req, res) => {
     });
   }
 
-  console.log(req.file);
-
   res.json({
     message: "File uploaded successfully",
-    filename: req.file.originalname,
+    originalName: req.file.originalname,
+    filename: req.file.filename,
     size: req.file.size,
+    downloadUrl: `/download/${encodeURIComponent(req.file.filename)}`,
   });
 });
 
-// 5. 파일 스트리밍과 다운로드
-app.get("/models/:filename", (req, res) => {
-  const filesDir = path.join(__dirname, "models");
-
-  // root 옵션을 지정하면 Express가 파일 경로를 models 폴더 내부로 제한함
-  res.sendFile(req.params.filename, { root: filesDir });
+// 5. 파일 다운로드
+app.get("/download/:filename", (req, res) => {
+  // root 옵션을 지정하면 Express가 파일 경로를 uploads 폴더 내부로 제한함
+  res.sendFile(req.params.filename, { root: uploadDir });
 });
 
 app.listen(port, () => {
@@ -222,66 +226,162 @@ app.listen(port, () => {
 });
 ```
 
-- JSON POST 요청, CORS를 설정
-- `cors`: 브라우저에서 다른 origin의 API 응답을 읽을 수 있도록 CORS 응답 헤더를 설정하는 미들웨어. 이 예제에서는 `http://localhost:8080`에서 실행되는 클라이언트가 `http://localhost:3000`의 API를 호출하는 상황을 가정함
+```html
+<!-- index.html -->
+<!doctype html>
+<html>
+  <head>
+    <title>Emscripten Example-15</title>
+  </head>
+  <body></body>
+</html>
+```
+
+- JSON POST 요청과 CORS를 설정
+- `cors`: 브라우저에서 다른 origin의 API 응답을 읽을 수 있도록 CORS 응답 헤더를 설정하는 미들웨어. 이 글의 개발자 도구 테스트는 같은 origin에서 실행되므로 CORS가 필요하지 않지만, `http://localhost:8080`에서 실행되는 별도의 클라이언트가 `http://localhost:3000`의 API를 호출하는 상황을 위해 설정함
 - multer를 이용한 파일 업로드 설정
 - GET, POST를 조합한 총 5가지의 API와 컨트롤러를 생성하여 기본적인 테스트를 수행
-  1.  `/hello`: 기본적인 JSON 문자열을 리턴받는 API
+  1.  `/hello`: 기본적인 JSON 객체를 응답하는 API
   2.  `/auth`: 인증 헤더를 확인하는 API. 토큰을 인증하는 것은 아니고 테스트용 헤더 확인 예제
   3.  `/echo`: JSON body를 POST 요청으로 받고, 그 요청을 그대로 리턴하는 API
-  4.  `/upload`: 파일 업로드를 위한 API
-  5.  `/models/:filename`: 파일 스트리밍과 다운로드를 위한 API. `/models/` 뒤의 문자열은 `req.params.filename`으로 전달되며, `root` 옵션을 통해 `models` 폴더 외부의 파일에는 접근할 수 없도록 제한함
+  4.  `/upload`: 파일을 `uploads` 폴더에 저장하고, 저장된 파일명과 다운로드 URL을 응답하는 API
+  5.  `/download/:filename`: 파일 다운로드를 위한 API. `/download/` 뒤의 문자열은 `req.params.filename`으로 전달되며, `root` 옵션을 통해 `uploads` 폴더 외부의 파일에는 접근할 수 없도록 제한함
+
+### 프로젝트 구조
+
+```
+ex-15/
+├── node_modules/
+├── uploads/
+├── index.html
+├── package-lock.json
+├── package.json
+└── server.js
+```
 
 ## 서버 테스트 하기
 
-![web-server-test](images/web-server-test.png)
-_그림 1. 5가지의 API에 대한 테스트_
-
-- `npm run dev`로 서버를 구동시킨 후 아래의 스크립트를 순차적으로 실행
-
-### 실행 스크립트
+### 서버 구동 시키기
 
 ```bash
-# 서버 실행
 npm run dev
-
-# --- 별도의 콘솔창에서 ---
-
-# GET 요청
-curl http://localhost:3000/hello
-
-# 인증 헤더가 포함된 GET
-curl \
-  -H "Authorization: Bearer test-token" \
-  http://localhost:3000/auth
-
-# 인증 헤더 없이 GET
-curl http://localhost:3000/auth
-
-# POST 요청
-curl \
-  -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Emscripten","language":"C++"}' \
-  http://localhost:3000/echo
-
-# 파일 다운로드
-curl http://localhost:3000/models/Cube.obj \
-  -o Cube.obj
-
-# 파일 확인
-ls
-
-# 파일 업로드
-curl \
-  -F "uploadFile=@Cube.obj" \
-  http://localhost:3000/upload
-
-# 파일 스트리밍
-curl http://localhost:3000/models/Cube.obj
 ```
 
-- 파일 업로드 후에 웹 서버의 `uploads` 폴더를 확인해보면 `Cube-1788845621235.obj` 같은 파일이 생성되어 있음. `Cube-` 뒤의 숫자는 타임스탬프로 시간에 따라 달라짐
+- `http://localhost:3000`에 접속한 뒤 개발자 도구의 Console 탭에서 아래 스크립트를 순차적으로 실행
+
+### GET 요청 테스트
+
+```JavaScript
+const response = await fetch('http://localhost:3000/hello', {
+  method: 'GET',
+});
+const json = await response.json();
+console.log(json);
+```
+
+![GET test](images/GET_test.png)
+_그림 1. GET 요청 결과 - 서버로부터 정상적으로 응답을 받음_
+
+### 인증 헤더가 포함된 GET 요청 테스트
+
+```JavaScript
+// 인증 헤더를 포함하여 요청
+const response = await fetch('http://localhost:3000/auth', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer test-token',
+  },
+});
+const json = await response.json();
+console.log(json);
+
+// 인증 헤더 없이 요청
+const response_no_header = await fetch('http://localhost:3000/auth', {
+  method: 'GET',
+});
+const json_no_header = await response_no_header.json();
+console.log(json_no_header);
+```
+
+![get with auth](images/GET_with_auth.png)
+_그림 2. 인증 헤더를 포함한 GET 요청 결과 - 인증 헤더가 포함되지 않은 경우에는 오류가 발생함_
+
+### POST 요청 테스트
+
+```JavaScript
+const response = await fetch('http://localhost:3000/echo', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    'name': 'Emscripten',
+    'language': 'C++',
+  }),
+});
+const json = await response.json();
+console.log(json);
+```
+
+![post test](images/POST_test.png)
+_그림 3. POST 요청 결과 - 전달한 JSON body를 그대로 돌려 받음_
+
+### 파일 업로드 테스트
+
+```JavaScript
+const textContent = "Hello from JavaScript";
+const fileName = "test_file.txt";
+
+const textBlob = new Blob([textContent], { type: 'text/plain' });
+const mockFile = new File([textBlob], fileName, { type: 'text/plain' });
+
+const formData = new FormData();
+formData.append('uploadFile', mockFile);
+
+const uploadResponse = await fetch('http://localhost:3000/upload', {
+  method: 'POST',
+  body: formData,
+});
+const uploadResult = await uploadResponse.json();
+console.log(uploadResult);
+
+// 다음 다운로드 테스트에서 사용
+globalThis.downloadUrl = uploadResult.downloadUrl;
+```
+
+- 문자열로 `File` 객체를 만든 뒤 `FormData`에 추가하여 POST 요청으로 전달
+- 서버는 파일을 `test_file-{timestamp}.txt` 형식으로 `uploads` 폴더에 저장하고, 저장된 파일명과 다운로드 URL을 응답함
+
+![get file upload](images/POST_file_upload.png)
+_그림 4. POST 파일 업로드 요청 결과 - `uploads` 폴더에 `test_file-{timestamp}.txt` 파일이 생성됨_
+
+### 파일 다운로드 테스트
+
+- 이전 테스트의 업로드 응답으로 받은 `downloadUrl`을 이용하여 `uploads` 폴더에 저장된 파일을 내려받음. 이전 예제 실행 후 브라우저를 갱신하지 않고 실행해야 함
+
+```JavaScript
+// 파일 다운로드
+const downloadResponse = await fetch(globalThis.downloadUrl);
+const blob = await downloadResponse.blob();
+
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url;
+a.download = 'test_file.txt';
+document.body.appendChild(a);
+a.click();
+
+a.remove();
+URL.revokeObjectURL(url);   // 메모리 정리
+
+// 응답 본문을 문자열로 읽기
+const textResponse = await fetch(globalThis.downloadUrl);
+const text = await textResponse.text();
+console.log(text);
+```
+
+![get file download](images/GET_file_download.png)
+_그림 5. GET 파일 다운로드 요청 결과 - 첫 번째 요청에서는 `test_file.txt` 파일을 내려받고, 두 번째 요청에서는 응답 본문을 문자열로 읽어 파일 내용을 확인함_
 
 ### 예제 코드 및 Node.js 버전
 
@@ -304,22 +404,22 @@ curl http://localhost:3000/models/Cube.obj
 - `"type": "commonjs"`를 유지하려면 `import` 대신 `require()`와 `module.exports`를 사용해야 합니다. 또는 파일 확장자를 `.mjs`로 변경하면 `type` 설정과 관계없이 ES module로 실행할 수 있습니다.
   {{< /faq >}}
 
-{{< faq summary="같은 `localhost`인데도 CORS 설정이 필요한가요?" >}}
+{{< faq summary="개발자 도구에서 테스트할 때도 CORS 설정이 필요한가요?" >}}
 
-- Origin은 프로토콜, 호스트, 포트의 조합으로 구분됩니다. 따라서 클라이언트가 실행되는 `http://localhost:8080`과 API 서버의 `http://localhost:3000`은 포트가 달라 서로 다른 origin입니다. 브라우저에서 두 서버 간 요청의 응답을 읽으려면 API 서버가 적절한 CORS 응답 헤더를 보내야 합니다.
-- CORS는 서버 요청 자체를 차단하는 인증 기능이 아니라 브라우저가 응답을 읽을 수 있는지를 제어하는 정책입니다. `curl`, Postman이나 다른 서버는 CORS를 강제하지 않으므로, 이 도구들에서 요청이 성공했다고 해서 브라우저에서도 CORS 설정이 올바르다는 의미는 아닙니다.
+- 이 글처럼 `http://localhost:3000`에서 개발자 도구를 열어 같은 origin의 API를 호출할 때는 CORS 설정이 필요하지 않습니다.
+- 현재 `cors` 미들웨어는 `http://localhost:8080`에서 실행되는 별도의 클라이언트가 `http://localhost:3000`의 API를 호출하는 경우를 위해 설정했습니다. Origin은 프로토콜, 호스트, 포트의 조합으로 구분되므로 두 주소는 포트가 달라 서로 다른 origin입니다. CORS는 인증 기능이 아니라 브라우저가 다른 origin의 응답을 읽을 수 있는지를 제어하는 정책입니다.
   {{< /faq >}}
 
 {{< faq summary="파일 업로드 중 `ENOENT` 또는 `Unexpected field` 오류가 발생하는 이유는 무엇인가요?" >}}
 
 - 이 예제처럼 Multer의 `destination`을 함수로 지정한 경우에는 `uploads` 폴더를 미리 생성해야 합니다. 폴더가 없다면 `mkdir uploads`로 생성한 뒤 서버를 실행합니다.
-- `upload.single("uploadFile")`의 인자는 서버가 받을 파일 필드의 이름입니다. 클라이언트에서도 `curl -F "uploadFile=@Cube.obj"`처럼 동일한 이름을 사용해야 하며, 다른 이름을 사용하면 `Unexpected field` 오류가 발생할 수 있습니다.
+- `upload.single("uploadFile")`의 인자는 서버가 받을 파일 필드의 이름입니다. 클라이언트에서도 `formData.append("uploadFile", mockFile)`처럼 같은 이름을 사용해야 하며, 다른 이름을 사용하면 `Unexpected field` 오류가 발생할 수 있습니다.
   {{< /faq >}}
 
 {{< faq summary="`res.sendFile()`은 파일 전체를 메모리에 올린 뒤 전송하나요?" >}}
 
 - 아니요. `res.sendFile()`은 파일을 스트리밍 방식으로 전송하므로, `fs.readFile()`처럼 파일 전체를 먼저 메모리에 올릴 필요가 없습니다. 따라서 비교적 큰 파일을 다운로드하는 API에도 사용할 수 있습니다.
-- 이 예제에서는 `root` 옵션을 `models` 폴더로 지정하여 요청한 경로가 해당 폴더 밖으로 벗어나지 못하도록 제한합니다.
+- 이 예제에서는 `root` 옵션을 `uploads` 폴더로 지정하여 요청한 경로가 해당 폴더 밖으로 벗어나지 못하도록 제한합니다. 다만 클라이언트의 `response.text()`는 응답 전체를 받은 뒤 문자열로 변환하므로, 해당 코드는 스트리밍 수신이 아니라 응답 본문의 내용을 확인하는 용도입니다.
   {{< /faq >}}
 
 {{< faq summary="이 예제 서버를 실제 서비스에 그대로 사용해도 되나요?" >}}

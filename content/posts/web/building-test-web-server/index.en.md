@@ -111,9 +111,9 @@ npm install --save-dev nodemon
 > [!NOTE]
 > `package.json` records the version ranges of packages that may be installed, while `package-lock.json` records the exact versions in the complete dependency tree that was installed. To reproduce the same dependency environment, commit both files and use `npm ci`. This command fails when the two files do not match and does not modify either `package.json` or `package-lock.json` during installation.
 
-## Basic Server Configuration
+## Server Configuration and Project Structure
 
-- Before starting the server, create an `uploads` directory in the project root for uploaded files. Also place the `Cube.obj` file used by the download test in a `models` directory.
+- Before starting the server, create an `uploads` directory in the project root for uploaded files, and create an `index.html` file to use when testing the APIs in the browser's developer tools.
 
 ```javascript
 // server.js
@@ -127,10 +127,11 @@ const app = express();
 const port = 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const uploadDir = path.join(__dirname, "uploads");
 
 // Configure CORS.
-// Allow API calls from a client running on a different origin.
-// Example: http://localhost:8080 → http://localhost:3000
+// Allow a separate client running at http://localhost:8080
+// to call the API at http://localhost:3000.
 app.use(
   cors({
     origin: "http://localhost:8080",
@@ -147,7 +148,7 @@ app.use(express.json());
 // to the original filename to make it unique.
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/");
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
@@ -156,6 +157,11 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage });
+
+// Home page
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
 
 // Define the API endpoints.
 // 1. Basic GET request
@@ -201,21 +207,19 @@ app.post("/upload", upload.single("uploadFile"), (req, res) => {
     });
   }
 
-  console.log(req.file);
-
   res.json({
     message: "File uploaded successfully",
-    filename: req.file.originalname,
+    originalName: req.file.originalname,
+    filename: req.file.filename,
     size: req.file.size,
+    downloadUrl: `/download/${encodeURIComponent(req.file.filename)}`,
   });
 });
 
-// 5. File streaming and download
-app.get("/models/:filename", (req, res) => {
-  const filesDir = path.join(__dirname, "models");
-
-  // The root option makes Express confine the file path to the models directory.
-  res.sendFile(req.params.filename, { root: filesDir });
+// 5. File download
+app.get("/download/:filename", (req, res) => {
+  // The root option makes Express confine the file path to the uploads directory.
+  res.sendFile(req.params.filename, { root: uploadDir });
 });
 
 app.listen(port, () => {
@@ -223,66 +227,162 @@ app.listen(port, () => {
 });
 ```
 
+```html
+<!-- index.html -->
+<!doctype html>
+<html>
+  <head>
+    <title>Emscripten Example-15</title>
+  </head>
+  <body></body>
+</html>
+```
+
 - Configure JSON POST request parsing and CORS.
-- `cors`: Middleware that sets CORS response headers so a browser can read an API response from another origin. This example assumes that a client running at `http://localhost:8080` calls an API at `http://localhost:3000`.
+- `cors`: Middleware that sets CORS response headers so a browser can read an API response from another origin. The developer-tools tests in this post run on the same origin and do not require CORS. This configuration is included for a separate client running at `http://localhost:8080` that calls the API at `http://localhost:3000`.
 - Configure file uploads with Multer.
 - Create controllers for five basic API tests using GET and POST requests:
-  1. `/hello`: Returns a basic JSON response.
+  1. `/hello`: Returns a basic JSON object.
   2. `/auth`: Checks for an authorization header. This is only a header-checking example and does not validate the token.
   3. `/echo`: Accepts a JSON body in a POST request and returns it unchanged.
-  4. `/upload`: Uploads a file.
-  5. `/models/:filename`: Streams or downloads a file. The value after `/models/` is passed as `req.params.filename`, and the `root` option prevents access to files outside the `models` directory.
+  4. `/upload`: Saves a file in the `uploads` directory and returns its stored filename and download URL.
+  5. `/download/:filename`: Downloads a file. The value after `/download/` is passed as `req.params.filename`, and the `root` option prevents access to files outside the `uploads` directory.
+
+### Project Structure
+
+```
+ex-15/
+├── node_modules/
+├── uploads/
+├── index.html
+├── package-lock.json
+├── package.json
+└── server.js
+```
 
 ## Testing the Server
 
-![Web server test](images/web-server-test.png)
-_Figure 1. Testing the five APIs._
-
-- Start the server with `npm run dev`, then run the following commands in order.
-
-### Test Commands
+### Starting the Server
 
 ```bash
-# Start the server.
 npm run dev
-
-# --- In a separate terminal window ---
-
-# GET request
-curl http://localhost:3000/hello
-
-# GET request with an authorization header
-curl \
-  -H "Authorization: Bearer test-token" \
-  http://localhost:3000/auth
-
-# GET request without an authorization header
-curl http://localhost:3000/auth
-
-# POST request
-curl \
-  -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Emscripten","language":"C++"}' \
-  http://localhost:3000/echo
-
-# Download a file.
-curl http://localhost:3000/models/Cube.obj \
-  -o Cube.obj
-
-# Check the downloaded file.
-ls
-
-# Upload a file.
-curl \
-  -F "uploadFile=@Cube.obj" \
-  http://localhost:3000/upload
-
-# Stream a file.
-curl http://localhost:3000/models/Cube.obj
 ```
 
-- After uploading the file, check the server's `uploads` directory. It should contain a file such as `Cube-1788845621235.obj`. The number after `Cube-` is a timestamp and will vary.
+- Open `http://localhost:3000`, then run the following scripts in order from the Console tab of the browser's developer tools.
+
+### Testing a GET Request
+
+```javascript
+const response = await fetch('http://localhost:3000/hello', {
+  method: 'GET',
+});
+const json = await response.json();
+console.log(json);
+```
+
+![GET test](images/GET_test.png)
+_Figure 1. GET request result—the server responds successfully._
+
+### Testing a GET Request with an Authorization Header
+
+```javascript
+// Send a request with an authorization header.
+const response = await fetch('http://localhost:3000/auth', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer test-token',
+  },
+});
+const json = await response.json();
+console.log(json);
+
+// Send a request without an authorization header.
+const response_no_header = await fetch('http://localhost:3000/auth', {
+  method: 'GET',
+});
+const json_no_header = await response_no_header.json();
+console.log(json_no_header);
+```
+
+![GET request with an authorization header](images/GET_with_auth.png)
+_Figure 2. GET request with an authorization header—the request without the header returns an error._
+
+### Testing a POST Request
+
+```javascript
+const response = await fetch('http://localhost:3000/echo', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    'name': 'Emscripten',
+    'language': 'C++',
+  }),
+});
+const json = await response.json();
+console.log(json);
+```
+
+![POST test](images/POST_test.png)
+_Figure 3. POST request result—the server returns the submitted JSON body unchanged._
+
+### Testing a File Upload
+
+```javascript
+const textContent = "Hello from JavaScript";
+const fileName = "test_file.txt";
+
+const textBlob = new Blob([textContent], { type: 'text/plain' });
+const mockFile = new File([textBlob], fileName, { type: 'text/plain' });
+
+const formData = new FormData();
+formData.append('uploadFile', mockFile);
+
+const uploadResponse = await fetch('http://localhost:3000/upload', {
+  method: 'POST',
+  body: formData,
+});
+const uploadResult = await uploadResponse.json();
+console.log(uploadResult);
+
+// Use this in the next download test.
+globalThis.downloadUrl = uploadResult.downloadUrl;
+```
+
+- Create a `File` object from a string, add it to `FormData`, and send it in a POST request.
+- The server saves the file in the `uploads` directory as `test_file-{timestamp}.txt` and returns its stored filename and download URL.
+
+![POST file upload](images/POST_file_upload.png)
+_Figure 4. POST file upload result—a `test_file-{timestamp}.txt` file is created in the `uploads` directory._
+
+### Testing a File Download
+
+- Use the `downloadUrl` returned by the preceding upload test to download the file saved in the `uploads` directory. Run this without refreshing the browser after the upload test.
+
+```javascript
+// Download the file.
+const downloadResponse = await fetch(globalThis.downloadUrl);
+const blob = await downloadResponse.blob();
+
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url;
+a.download = 'test_file.txt';
+document.body.appendChild(a);
+a.click();
+
+a.remove();
+URL.revokeObjectURL(url);   // Release the object URL.
+
+// Read the response body as text.
+const textResponse = await fetch(globalThis.downloadUrl);
+const text = await textResponse.text();
+console.log(text);
+```
+
+![GET file download](images/GET_file_download.png)
+_Figure 5. GET file download result—the first request downloads `test_file.txt`, and the second reads the response body as text to verify the file contents._
 
 ### Example Code and Node.js Version
 
@@ -305,22 +405,22 @@ curl http://localhost:3000/models/Cube.obj
 - To keep `"type": "commonjs"`, replace `import` with `require()` and `module.exports`. Alternatively, use the `.mjs` extension to run the file as an ES module regardless of the `type` setting.
   {{< /faq >}}
 
-{{< faq summary="Why is CORS required even when both servers use `localhost`?" >}}
+{{< faq summary="Is CORS configuration required when testing from the developer tools?" >}}
 
-- An origin is defined by the combination of protocol, host, and port. The client at `http://localhost:8080` and the API server at `http://localhost:3000` therefore have different origins because their ports differ. The API server must send the appropriate CORS response headers for a browser to expose the response to the client.
-- CORS is not an authentication mechanism that blocks the request at the server. It is a browser policy that controls whether client-side code can read the response. Tools such as `curl` and Postman, as well as other servers, do not enforce CORS, so a successful request from one of them does not prove that the browser CORS configuration is correct.
+- No. When you open the developer tools at `http://localhost:3000` and call an API on the same origin, as this post does, CORS configuration is not required.
+- The `cors` middleware in this example is configured for a separate client running at `http://localhost:8080` that calls the API at `http://localhost:3000`. An origin is defined by the combination of protocol, host, and port, so these two addresses have different origins because their ports differ. CORS is not an authentication mechanism; it is a browser policy that controls whether code can read a response from another origin.
   {{< /faq >}}
 
 {{< faq summary="Why does a file upload fail with `ENOENT` or `Unexpected field`?" >}}
 
 - When Multer's `destination` is provided as a function, as it is in this example, the `uploads` directory must already exist. If it does not, create it with `mkdir uploads` before starting the server.
-- The argument passed to `upload.single("uploadFile")` is the file field name expected by the server. The client must use the same name, as in `curl -F "uploadFile=@Cube.obj"`. Using a different name can cause an `Unexpected field` error.
+- The argument passed to `upload.single("uploadFile")` is the file field name expected by the server. The client must use the same name, as in `formData.append("uploadFile", mockFile)`. Using a different name can cause an `Unexpected field` error.
   {{< /faq >}}
 
 {{< faq summary="Does `res.sendFile()` load the entire file into memory before sending it?" >}}
 
 - No. `res.sendFile()` streams the file, so it does not need to load the entire file into memory first as `fs.readFile()` does. This makes it suitable for APIs that download relatively large files.
-- In this example, the `root` option is set to the `models` directory, preventing the requested path from escaping that directory.
+- In this example, the `root` option is set to the `uploads` directory, preventing the requested path from escaping that directory. However, the client's `response.text()` waits for the complete response before converting it to a string, so that code verifies the response body rather than demonstrating streaming reception.
   {{< /faq >}}
 
 {{< faq summary="Can this example server be used as-is in production?" >}}
