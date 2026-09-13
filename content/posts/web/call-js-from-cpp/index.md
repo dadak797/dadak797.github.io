@@ -209,7 +209,7 @@ _그림 2. 마우스의 위치가 HTML과 콘솔창에 출력되는 것을 확�
 {{< faq summary="예제를 보면 그냥 JavaScript에서 처리하면 될 것 같은데, 굳이 C++에서 JavaScript를 호출해서 처리할 필요가 있나요?" >}}
 - 위의 예제에서는 큰 필요성을 못 느낄 수 있습니다. 하지만, 아래와 같은 경우 등에 C++ 코드 내에서 JavaScript 코드를 반드시 사용해야 하는 경우가 발생할 수 있습니다.
 - C++ 코드에서 파일 브라우저를 열고 파일을 읽어와야 하는 경우 ([WebAssembly에서 File 다루기](/posts/emscripten-file-handling-memfs/))
-- C++ 코드에서 JavaScript Fetch API를 사용해야 하는 경우 ([WebAssembly에서 Fetch 하기]())
+- C++ 코드에서 JavaScript Fetch API를 사용해야 하는 경우 ([Emscripten에서 HTTP 요청하기 - Emscripten Fetch API](/posts/emscripten-fetch/))
 - C++을 이용한 그래픽 프로그래밍(WebGL, WebGPU)에서 브라우저의 크기에 따라 프레임 버퍼(Frame buffer)의 크기를 갱신해야 하는 경우
 {{< /faq >}}
 

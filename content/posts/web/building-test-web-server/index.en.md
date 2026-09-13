@@ -395,6 +395,9 @@ _Figure 5. GET file download result—the first request downloads `test_file.txt
 - Node.js v26.5.0
 - npm 11.17.0
 
+> [!NOTE]
+> See [Making HTTP Requests in Emscripten - Emscripten Fetch API](/en/posts/emscripten-fetch/) for instructions on calling the server built in this post with the Emscripten Fetch API.
+
 ## FAQ
 
 {{< faq summary="What are the advantages of an Express-based Node.js server compared with Flask, Django, or Spring Boot?" >}}

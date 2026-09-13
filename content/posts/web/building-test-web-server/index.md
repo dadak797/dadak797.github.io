@@ -394,6 +394,9 @@ _그림 5. GET 파일 다운로드 요청 결과 - 첫 번째 요청에서는 `t
 - Node.js v26.5.0
 - npm 11.17.0
 
+> [!NOTE]
+> 이 글에서 구축한 서버를 Emscripten Fetch API로 호출하는 방법은 [Emscripten에서 HTTP 요청하기 - Emscripten Fetch API](/posts/emscripten-fetch/)에서 확인할 수 있다.
+
 ## FAQ
 
 {{< faq summary="Express 기반 Node.js 서버를 Flask, Django나 Spring Boot와 비교하면 어떤 장점이 있나요?" >}}

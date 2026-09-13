@@ -209,7 +209,7 @@ _Figure 2. You can see the mouse position being printed to both the HTML and the
 {{< faq summary="Looking at the examples, it seems like this could just be handled in JavaScript — is it really necessary to call JavaScript from C++?" >}}
 - You might not feel a strong need to in the examples above. But there are cases where you're required to use JavaScript code from within C++, such as the following:
 - When your C++ code needs to open a file browser dialog and read a file ([Working with Files in WebAssembly](/en/posts/emscripten-file-handling-memfs/))
-- When your C++ code needs to use the JavaScript Fetch API ([Fetching Data in WebAssembly]())
+- When your C++ code needs to use the JavaScript Fetch API ([Making HTTP Requests in Emscripten - Emscripten Fetch API](/en/posts/emscripten-fetch/))
 - When doing graphics programming in C++ (WebGL, WebGPU) and you need to resize the frame buffer according to the browser's size
 {{< /faq >}}
 
