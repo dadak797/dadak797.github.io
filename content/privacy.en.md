@@ -2,7 +2,7 @@
 title: "Privacy Policy"
 description: "Information about how dadak's Dev Notes handles personal information and cookies."
 date: "2026-07-27T00:00:00+09:00"
-lastmod: "2026-08-01T00:00:00+09:00"
+lastmod: "2026-09-14T00:00:00+09:00"
 draft: false
 ShowToc: true
 ShowReadingTime: false
@@ -11,7 +11,7 @@ ShowWordCount: false
 
 dadak's Dev Notes ("this site") respects the privacy of its visitors. This policy explains how personal information and cookies may be handled when you visit this site.
 
-This policy is effective as of July 27, 2026, and was last updated on August 1, 2026.
+This policy is effective as of July 27, 2026, and was last updated on September 14, 2026.
 
 ## Information That May Be Collected
 
@@ -27,7 +27,7 @@ However, third-party services such as Google AdSense and Google Analytics may au
 
 ## Google AdSense and Cookies
 
-This site may use Google AdSense to display advertisements.
+This site uses Google AdSense to display advertisements.
 
 Third-party vendors, including Google, may use cookies to serve ads based on a visitor's previous visits to this site or other websites. Google may use advertising cookies to provide personalized or non-personalized ads, measure advertising performance, and prevent fraud and abuse.
 
