@@ -2,7 +2,7 @@
 title: "Privacy Policy"
 description: "Information about how dadak's Dev Notes handles personal information and cookies."
 date: "2026-07-27T00:00:00+09:00"
-lastmod: "2026-09-14T00:00:00+09:00"
+lastmod: "2026-09-15T00:00:00+09:00"
 draft: false
 ShowToc: true
 ShowReadingTime: false
@@ -11,11 +11,11 @@ ShowWordCount: false
 
 dadak's Dev Notes ("this site") respects the privacy of its visitors. This policy explains how personal information and cookies may be handled when you visit this site.
 
-This policy is effective as of July 27, 2026, and was last updated on September 14, 2026.
+This policy is effective as of July 27, 2026, and was last updated on September 15, 2026.
 
 ## Information That May Be Collected
 
-This site does not provide user registration, comments, or contact forms and does not directly collect visitors' names or contact details.
+This site does not provide its own user registration or contact forms and does not directly collect visitors' names or contact details. Comments are provided through giscus, which is powered by GitHub Discussions.
 
 However, third-party services such as Google AdSense and Google Analytics may automatically process information including:
 
@@ -41,11 +41,16 @@ This site uses Google Analytics 4 (GA4) to analyze visitor statistics and improv
 
 For more information about how Google processes this information, see [How Google uses information from sites or apps that use its services](https://policies.google.com/technologies/partner-sites?hl=en). Visitors can limit Google Analytics data collection by blocking cookies in their browser or installing the [Google Analytics Opt-out Browser Add-on](https://tools.google.com/dlpage/gaoptout?hl=en).
 
+## Comments and giscus
+
+This site uses giscus and GitHub Discussions to provide comments. A GitHub account is required to post a comment. Comments, GitHub usernames, and profile images are displayed in a public GitHub Discussion and stored by GitHub. GitHub's policies apply to the processing and retention of comment data.
+
 ## Third-Party Services
 
 This site may use the following third-party services:
 
 - GitHub Pages: website hosting
+- giscus and GitHub Discussions: comments and reactions
 - Google AdSense: advertising and advertising performance measurement
 - Google Analytics: visitor statistics and site improvement
 

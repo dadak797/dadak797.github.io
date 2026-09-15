@@ -144,6 +144,7 @@ params:
   ShowCodeCopyButtons: true
   ShowToc: true
   TocOpen: false
+  comments: true
 
   socialIcons:
     - name: github

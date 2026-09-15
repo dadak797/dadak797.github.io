@@ -2,7 +2,7 @@
 title: "개인정보처리방침"
 description: "dadak's Dev Notes의 개인정보 및 쿠키 처리에 관한 안내입니다."
 date: "2026-07-27T00:00:00+09:00"
-lastmod: "2026-09-14T00:00:00+09:00"
+lastmod: "2026-09-15T00:00:00+09:00"
 draft: false
 ShowToc: true
 ShowReadingTime: false
@@ -11,11 +11,11 @@ ShowWordCount: false
 
 dadak's Dev Notes(이하 "본 사이트")는 방문자의 개인정보를 중요하게 생각하며, 본 사이트에서 이용되는 개인정보와 쿠키에 관한 사항을 다음과 같이 안내합니다.
 
-본 방침은 2026년 7월 27일부터 적용되며, 2026년 9월 14일에 마지막으로 수정되었습니다.
+본 방침은 2026년 7월 27일부터 적용되며, 2026년 9월 15일에 마지막으로 수정되었습니다.
 
 ## 수집되는 정보
 
-본 사이트는 회원가입, 댓글 또는 문의 양식을 운영하지 않으며 방문자의 이름이나 연락처를 직접 수집하지 않습니다.
+본 사이트는 자체 회원가입 또는 문의 양식을 운영하지 않으며 방문자의 이름이나 연락처를 직접 수집하지 않습니다. 댓글은 GitHub Discussions 기반의 giscus를 통해 제공됩니다.
 
 다만 Google AdSense와 Google Analytics 같은 외부 서비스를 이용하는 과정에서 다음 정보가 자동으로 처리될 수 있습니다.
 
@@ -41,11 +41,16 @@ Google이 제휴 사이트에서 정보를 사용하는 방법은 [Google의 파
 
 Google Analytics의 정보 처리 방식은 [Google의 파트너 사이트 정보 이용 안내](https://policies.google.com/technologies/partner-sites?hl=ko)에서 확인할 수 있습니다. 방문자는 브라우저에서 쿠키를 차단하거나 [Google Analytics 차단 브라우저 부가기능](https://tools.google.com/dlpage/gaoptout?hl=ko)을 사용해 Google Analytics의 데이터 수집을 제한할 수 있습니다.
 
+## 댓글과 giscus
+
+본 사이트는 댓글 기능을 제공하기 위해 giscus와 GitHub Discussions를 사용합니다. 댓글을 작성하려면 GitHub 계정으로 인증해야 하며, 작성한 댓글과 GitHub 사용자 이름 및 프로필 이미지가 공개 GitHub Discussion에 표시되고 GitHub에 저장됩니다. 댓글의 처리와 보관에는 GitHub의 정책이 적용됩니다.
+
 ## 외부 서비스
 
 본 사이트는 다음 외부 서비스를 이용할 수 있습니다.
 
 - GitHub Pages: 웹사이트 호스팅
+- giscus 및 GitHub Discussions: 댓글과 반응 제공
 - Google AdSense: 광고 제공 및 광고 성과 측정
 - Google Analytics: 방문 통계 분석 및 사이트 개선
 
