@@ -6,9 +6,9 @@ description: "C++에서 DOM에 접근하고 JavaScript의 함수를 호출하는
 categories:
   - Web
 tags:
-  - emscripten
-  - em_asm
-  - em_js
+  - Emscripten
+  - EM_ASM
+  - EM_JS
 ShowToc: true
 TocOpen: false
 ShowReadingTime: false

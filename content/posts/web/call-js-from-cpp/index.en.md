@@ -6,9 +6,9 @@ description: "An introduction to accessing the DOM and calling JavaScript functi
 categories:
   - Web
 tags:
-  - emscripten
-  - em_asm
-  - em_js
+  - Emscripten
+  - EM_ASM
+  - EM_JS
 ShowToc: true
 TocOpen: false
 ShowReadingTime: false

@@ -6,8 +6,8 @@ description: "An introduction to Embind for using C++ classes from JavaScript. A
 categories:
   - Web
 tags:
-  - emscripten
-  - embind
+  - Emscripten
+  - Embind
   - class-binding
 ShowToc: true
 TocOpen: false

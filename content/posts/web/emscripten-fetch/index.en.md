@@ -6,8 +6,8 @@ description: HTTP communication in Emscripten can be broadly divided into three 
 categories:
   - Web
 tags:
-  - emscripten
-  - http
+  - Emscripten
+  - HTTP
   - fetch
 ShowToc: true
 TocOpen: false

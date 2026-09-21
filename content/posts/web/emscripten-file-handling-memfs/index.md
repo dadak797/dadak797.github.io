@@ -6,8 +6,8 @@ description: Emscripten에서 파일을 다루기 위한 Virtual File System을 
 categories:
   - Web
 tags:
-  - emscripten
-  - memfs
+  - Emscripten
+  - MEMFS
   - virtual-file-system
 ShowToc: true
 TocOpen: false

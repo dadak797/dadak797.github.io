@@ -6,8 +6,8 @@ description: Emscripten에서 HTTP 통신을 수행하는 방법은 크게 세 �
 categories:
   - Web
 tags:
-  - emscripten
-  - http
+  - Emscripten
+  - HTTP
   - fetch
 ShowToc: true
 TocOpen: false

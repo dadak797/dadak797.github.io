@@ -6,8 +6,8 @@ description: Introduces the Virtual File System for handling files in Emscripten
 categories:
   - Web
 tags:
-  - emscripten
-  - memfs
+  - Emscripten
+  - MEMFS
   - virtual-file-system
 ShowToc: true
 TocOpen: false

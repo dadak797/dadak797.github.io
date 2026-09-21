@@ -6,8 +6,8 @@ description: "C++의 클래스를 JavaScript에서 사용하도록 하기 위한
 categories:
   - Web
 tags:
-  - emscripten
-  - embind
+  - Emscripten
+  - Embind
   - class-binding
 ShowToc: true
 TocOpen: false

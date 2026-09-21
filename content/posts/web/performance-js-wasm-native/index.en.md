@@ -8,7 +8,7 @@ categories:
   - Web
 
 tags:
-  - emscripten
+  - Emscripten
   - performance
   - benchmark
 

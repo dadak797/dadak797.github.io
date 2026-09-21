@@ -9,7 +9,7 @@ categories:
   - Web
 
 tags:
-  - emscripten
+  - Emscripten
   - emsdk
   - installation
 

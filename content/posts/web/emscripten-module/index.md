@@ -6,8 +6,8 @@ description: "Emscripten Module의 역할, 초기화 설정 및 사용 방법에
 categories:
   - Web
 tags:
-  - emscripten
-  - module
+  - Emscripten
+  - Module
   - stdout-stderr
 ShowToc: true
 TocOpen: false

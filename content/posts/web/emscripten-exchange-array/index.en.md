@@ -6,8 +6,8 @@ description: "Introduces ways to pass an array as an argument when exporting a C
 categories:
   - Web
 tags:
-  - emscripten
-  - json
+  - Emscripten
+  - JSON
   - memory-view
 ShowToc: true
 TocOpen: false

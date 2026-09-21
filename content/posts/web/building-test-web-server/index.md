@@ -7,10 +7,10 @@ categories:
   - Web
 tags:
   - web-server
-  - node-js
-  - express
+  - Node.js
+  - Express
   - backend
-  - cors
+  - CORS
 ShowToc: true
 TocOpen: false
 ShowReadingTime: false

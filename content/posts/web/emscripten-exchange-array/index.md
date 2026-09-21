@@ -6,8 +6,8 @@ description: "JavaScript에서 사용하기 위해 C++ 함수를 내보낼 때, 
 categories:
   - Web
 tags:
-  - emscripten
-  - json
+  - Emscripten
+  - JSON
   - memory-view
 ShowToc: true
 TocOpen: false

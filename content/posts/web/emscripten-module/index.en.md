@@ -6,8 +6,8 @@ description: "Explains the role of the Emscripten Module, how to configure its i
 categories:
   - Web
 tags:
-  - emscripten
-  - module
+  - Emscripten
+  - Module
   - stdout-stderr
 ShowToc: true
 TocOpen: false

@@ -9,8 +9,8 @@ categories:
   - Web
 
 tags:
-  - emscripten
-  - webassembly
+  - Emscripten
+  - WebAssembly
   - compiler
 
 ShowToc: true
