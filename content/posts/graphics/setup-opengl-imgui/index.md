@@ -585,7 +585,7 @@ _그림 4. 브라우저에서 실행한 모습_
 
 Dear ImGui는 기본적으로 창의 크기와 위치 등의 설정을 `imgui.ini`에 저장합니다. Native에서는 이 파일이 디스크에 남지만, Emscripten의 기본 파일시스템인 [MEMFS](/posts/emscripten-file-handling-memfs/#memfs)에 작성된 파일은 메모리에만 존재하므로 페이지를 다시 불러오면 사라집니다.
 
-브라우저에서도 설정을 유지하려면 IDBFS를 마운트하고 `FS.syncfs()`로 브라우저의 IndexedDB와 동기화하거나, `ImGui::SaveIniSettingsToMemory()`의 결과를 직접 저장해야 합니다. 자세한 예제는 [브라우저에서 데이터 유지하기]()를 참고하세요.
+브라우저에서도 설정을 유지하려면 IDBFS를 마운트하고 `FS.syncfs()`로 브라우저의 IndexedDB와 동기화하거나, `ImGui::SaveIniSettingsToMemory()`의 결과를 직접 저장해야 합니다. 자세한 예제는 [브라우저에서 데이터 유지하기](/posts/emscripten-file-persistency/)를 참고하세요.
 
 {{< /faq >}}
 

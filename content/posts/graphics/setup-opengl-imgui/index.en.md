@@ -585,7 +585,7 @@ The same approach applies to a custom renderer: most rendering code can be share
 
 By default, Dear ImGui stores settings such as window sizes and positions in `imgui.ini`. The file remains on disk in a Native build, but files written to Emscripten's default [MEMFS](/en/posts/emscripten-file-handling-memfs/#memfs) filesystem exist only in memory and disappear when the page is reloaded.
 
-To preserve the settings in a browser, mount IDBFS and synchronize it with the browser's IndexedDB using `FS.syncfs()`, or store the result of `ImGui::SaveIniSettingsToMemory()` yourself. See [Persisting Data in the Browser]() for a complete example.
+To preserve the settings in a browser, mount IDBFS and synchronize it with the browser's IndexedDB using `FS.syncfs()`, or store the result of `ImGui::SaveIniSettingsToMemory()` yourself. See [Persisting Data in the Browser](/en/posts/emscripten-file-persistency/) for a complete example.
 
 {{< /faq >}}
 
