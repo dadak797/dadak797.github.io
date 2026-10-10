@@ -63,7 +63,7 @@ target_link_libraries(main PRIVATE nlohmann_json)
 
 ...
 
-// Initial background color
+// 초기 배경색
 float g_BgColor[4] = {0.0f, 0.1f, 0.2f, 1.0f};
 int32_t g_Theme = 0;
 
@@ -76,7 +76,7 @@ const char* g_ThemeNames[] = {"Dark", "Light", "Classic"};
 #ifndef __EMSCRIPTEN__
 constexpr const char* SETTINGS_FILE = "settings.json";
 
-// Read settings.json as a JSON object (empty object if missing or invalid)
+// settings.json을 JSON 객체로 읽음(없거나 유효하지 않으면 빈 객체)
 json readSettingsFile() {
   std::ifstream file(SETTINGS_FILE);
   if (!file) {
@@ -192,11 +192,11 @@ void renderFrame(GLFWwindow* window) {
 
 ...
 
-}  // namespace
+}
 
 int main() {
   ...
-  // ImGui initialization
+  // ImGui 초기화
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
   ImGuiIO& io = ImGui::GetIO();
@@ -211,7 +211,7 @@ int main() {
 
   loadBgColor();
 
-  // Main loop
+  // 메인 루프
   ...
 }
 ```
@@ -299,9 +299,9 @@ FS.syncfs(populate, callback);
 
 target_link_options(main PRIVATE
   "-sUSE_GLFW=3"
-  "-sMIN_WEBGL_VERSION=2"  # Set the minimum WebGL version to 2
-  "-sMAX_WEBGL_VERSION=2"  # Set the maximum WebGL version to 2
-  "-lidbfs.js"             # Use IDBFS to persist imgui.ini
+  "-sMIN_WEBGL_VERSION=2"  # 최소 WebGL 버전을 2로 설정
+  "-sMAX_WEBGL_VERSION=2"  # 최대 WebGL 버전을 2로 설정
+  "-lidbfs.js"             # imgui.ini를 유지하기 위해 IDBFS 사용
 )
 
 ...
@@ -324,12 +324,12 @@ target_link_options(main PRIVATE
 constexpr const char* IMGUI_INI_PATH = "/settings/imgui.ini";
 bool g_IniLoaded = false;
 
-// Mount IDBFS and load imgui.ini once the browser storage is synced
+// IDBFS를 마운트하고 브라우저 저장소 동기화가 끝나면 imgui.ini를 불러옴
 void loadImGuiIni() {
   EM_ASM({
     FS.mkdir('/settings');
-    FS.mount(IDBFS, {}, '/settings');  // Mount IDBFS in the browser at /settings
-    // true: synchronize from the browser storage to the in-memory filesystem
+    FS.mount(IDBFS, {}, '/settings');  // 브라우저의 /settings에 IDBFS 마운트
+    // true: 브라우저 저장소에서 인메모리 파일 시스템으로 동기화
     FS.syncfs(true, (err) => {
       if (err) console.error(err);
       _onImGuiIniSynced();
@@ -337,7 +337,7 @@ void loadImGuiIni() {
   });
 }
 
-// Write imgui.ini to IDBFS and flush it to the browser storage
+// imgui.ini를 IDBFS에 쓰고 브라우저 저장소로 플러시
 void saveImGuiIni() {
   size_t dataSize = 0;
   const char* data = ImGui::SaveIniSettingsToMemory(&dataSize);
@@ -347,7 +347,7 @@ void saveImGuiIni() {
   file.close();
 
   EM_ASM({
-    // false: synchronize from the in-memory filesystem to the browser storage
+    // false: 인메모리 파일 시스템에서 브라우저 저장소로 동기화
     FS.syncfs(false, (err) => {
       if (err) console.error(err);
     });
@@ -355,27 +355,27 @@ void saveImGuiIni() {
   ImGui::GetIO().WantSaveIniSettings = false;
 }
 
-// Called by emscripten_set_main_loop_arg
+// emscripten_set_main_loop_arg에서 호출
 void browserMainLoop(void* argument) {
   ...
-  // Wait until imgui.ini is loaded from IDBFS
+  // IDBFS에서 imgui.ini를 불러올 때까지 대기
   if (!g_IniLoaded) {
     return;
   }
 
   renderFrame(window);
 
-  // Save the ini settings, when WantSaveIniSettings becomes true
+  // WantSaveIniSettings가 true가 되면 ini 설정을 저장
   if (ImGui::GetIO().WantSaveIniSettings) {
     saveImGuiIni();
   }
 }
 #endif
 
-}  // namespace
+}
 
 #ifdef __EMSCRIPTEN__
-// Called from JavaScript when FS.syncfs(true) finishes
+// FS.syncfs(true)가 끝나면 JavaScript에서 호출
 extern "C" EMSCRIPTEN_KEEPALIVE void onImGuiIniSynced() {
   std::ifstream file(IMGUI_INI_PATH, std::ios::binary);
   if (file) {
@@ -393,7 +393,7 @@ int main() {
   ImGuiIO& io = ImGui::GetIO();
   io.Fonts->AddFontDefaultVector();
 #ifdef __EMSCRIPTEN__
-  io.IniFilename = nullptr;  // Save imgui.ini manually to IDBFS
+  io.IniFilename = nullptr;  // imgui.ini를 IDBFS에 직접 저장
   loadImGuiIni();
 #endif
   ...
